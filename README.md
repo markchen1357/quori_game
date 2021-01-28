@@ -16,11 +16,13 @@ pip install numpy scipy matplotlib pandas pingouin
 - Create the database using
 ```
 flask db init
-flask db migrate -m "users table"
+flask db migrate -m "user table"
 flask db upgrade
-flask db migrate -m "trials table"
+flask db migrate -m "trial table"
 flask db upgrade
-flask db migrate -m "demos table"
+flask db migrate -m "demo table"
+flask db upgrade
+flask db migrate -m "condition table"
 flask db upgrade
 ```
 - Run the app with `python -m flask run`

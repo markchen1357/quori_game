@@ -5,7 +5,7 @@
         {{num_completed_trials}} out of {{num_trials}}</div>
 </div>
 <div class="row" style="padding: 2em;">
-    <div class="col-5">
+    <div class="col-8">
         <div class="row">
             <div class="col"></div>
             <div id="staging" class="staging col">
@@ -18,7 +18,11 @@
         <div class="row bin-row">
             {% for bin_id in range(num_bins) %}
             <div id="bin{{bin_id}}" class="bin col">
-
+                {% for card in previous_cards[bin_id] %}
+                <div class="card obj prev-card" style="width: 8rem">
+                    <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{card}}.png">
+                </div>
+                {% endfor %}
             </div>
             {% endfor %}
         </div>
@@ -28,14 +32,9 @@
                     Choice</button>
             </div>
         </div>
-        <div class="row">
-            {% for bin_id in range(num_bins) %}
-            <span id="bin_text_feedback{{bin_id}}" class="invisible">{{text_feedback[bin_id]}}</span>
-            <span id="bin_nonverbal_feedback{{bin_id}}" class="invisible">{{nonverbal_feedback[bin_id]}}</span> {% endfor %}
-            <span id="feedback_type" class="invisible">{{feedback_type}}</span>
-        </div>
+
     </div>
-    <div class="col-7">
+    <div class="col-4">
         <div class="row">
             <div class="col-7">
                 <img id="robot" class="card-img-top w-100" style="padding: 0.5em;" src="../static/peach_1.png">

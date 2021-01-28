@@ -1,5 +1,6 @@
 from time import strftime
 
+
 def rules_to_str(rules):
     rule_str = ""
     for bin in rules:

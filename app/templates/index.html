@@ -1,6 +1,43 @@
 {% extends "base.html" %} {% block content %}
 <h1>Home</h1>
+
+{% if not consent %}
 <div class="row">
+    <div class="card">
+        <div class="card-body">
+            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100">Consent Form</a>
+        </div>
+    </div>
+</div>
+{% else %} {% if not training %}
+<div class="row">
+    <div class="card">
+        <div class="card-body">
+            <a href="{{ url_for('training') }}" class="btn btn-primary w-100">Instructions</a>
+        </div>
+    </div>
+</div>
+{% else %} {% for cur_round in range(num_rounds) %}
+<div class="row">
+    <div class="col">
+        <div class="card-body">
+            <a href="{{ url_for('demos', round=cur_round) }}" class="btn btn-primary w-100">Demos {{cur_round+1}}</a>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card-body">
+            <a href="{{ url_for('trials', round=cur_round) }}" class="btn btn-primary w-100">Trials {{cur_round+1}}</a>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card-body">
+            <a href="" class="btn btn-primary w-100">Survey {{cur_round+1}}</a>
+        </div>
+    </div>
+</div>
+{% endfor %} {% endif %} {% endif %}
+
+<!-- <div class="row">
     <div class="col">
         <div class="card" style="width: 100%;">
             <div class="card-body">
@@ -97,5 +134,5 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 {% endblock %}
