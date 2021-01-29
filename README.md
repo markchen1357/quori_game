@@ -24,6 +24,8 @@ flask db migrate -m "demo table"
 flask db upgrade
 flask db migrate -m "condition table"
 flask db upgrade
+flask db migrate -m "survey table"
+flask db upgrade
 ```
 - Run the app with `python -m flask run`
 

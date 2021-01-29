@@ -17,6 +17,12 @@ class User(UserMixin, db.Model):
 
     consent = db.Column(db.Integer)
     training = db.Column(db.Integer)
+    age = db.Column(db.Integer)
+    gender = db.Column(db.Integer)
+    ethnicity = db.Column(db.Integer)
+    education = db.Column(db.Integer)
+    robot = db.Column(db.Integer)
+
 
     def __repr__(self):
         return "<User {}>".format(self.username)
@@ -69,18 +75,14 @@ class Survey(db.Model):
     round_num = db.Column(db.Integer)
     robot_teaching = db.Column(db.Integer)
     user_learning = db.Column(db.Integer)
-    age = db.Column(db.Integer)
-    gender = db.Column(db.Integer)
-    ethnicity = db.Column(db.Integer)
-    education = db.Column(db.Integer)
-    robot = db.Column(db.Integer)
-
+   
 class Condition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     difficulty = db.Column(db.PickleType)
     nonverbal = db.Column(db.PickleType)
     count = db.Column(db.Integer)
     users = db.relationship('User', backref='person', lazy="dynamic")
+
     
 
 

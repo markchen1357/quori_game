@@ -1,138 +1,46 @@
 {% extends "base.html" %} {% block content %}
 <h1>Home</h1>
 
-{% if not consent %}
-<div class="row">
-    <div class="card">
-        <div class="card-body">
-            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100">Consent Form</a>
-        </div>
-    </div>
-</div>
-{% else %} {% if not training %}
-<div class="row">
-    <div class="card">
-        <div class="card-body">
-            <a href="{{ url_for('training') }}" class="btn btn-primary w-100">Instructions</a>
-        </div>
-    </div>
-</div>
-{% else %} {% for cur_round in range(num_rounds) %}
+<h3>Consent and Training</h3>
 <div class="row">
     <div class="col">
         <div class="card-body">
-            <a href="{{ url_for('demos', round=cur_round) }}" class="btn btn-primary w-100">Demos {{cur_round+1}}</a>
+            {% if not consent %}
+            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100">Complete Consent Form</a> {% else %}
+            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100 disabled">Consent Completed</a> {% endif %}
         </div>
     </div>
     <div class="col">
         <div class="card-body">
-            <a href="{{ url_for('trials', round=cur_round) }}" class="btn btn-primary w-100">Trials {{cur_round+1}}</a>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card-body">
-            <a href="" class="btn btn-primary w-100">Survey {{cur_round+1}}</a>
+            {% if not training %}
+            <a href="{{ url_for('training') }}" class="btn btn-primary w-100">Complete Training Form</a> {% else %}
+            <a href="{{ url_for('training') }}" class="btn btn-primary w-100 disabled">Training Completed</a> {% endif %}
         </div>
     </div>
 </div>
-{% endfor %} {% endif %} {% endif %}
-
-<!-- <div class="row">
+{% for cur_round in range(num_rounds) %}
+<h3>Round {{cur_round+1}}</h3>
+<div class="row">
     <div class="col">
-        <div class="card" style="width: 100%;">
-            <div class="card-body">
-                <h5 class="card-title">Consent and Training</h5>
-                {% if consent %}
-                <p><a href="#" class="btn btn-secondary w-100" disabled>Consent Complete</a> </p>
-                {% if training %}
-                <p><a href="#" class="btn btn-secondary w-100" disabled>Training Complete</a></p>
-                {% else %}
-                <p><a href="{{ url_for('training') }}" class="btn btn-primary w-100">Training Form</a></p>
-                {% endif %} {% else %}
-                <p><a href="{{ url_for('consent') }}" class="btn btn-primary w-100">Consent Form</a></p>
-                {% endif %} {% if debug_mode %}
-                <p>
-                    <form action="" method="post">
-                        {{ clear_consent_form.hidden_tag() }} {{ clear_consent_form.submit_consent(class="btn btn-danger w-100") }}
-                    </form>
-                </p>
-                <p>
-                    <form action="" method="post">
-                        {{ clear_training_form.hidden_tag() }} {{ clear_training_form.submit_training(class="btn btn-danger w-100") }}
-                    </form>
-                </p>
-                {% endif %}
-            </div>
+        <div class="card-body">
+            {% if not completed[cur_round][0] %}
+            <a href="{{ url_for('demos', round=cur_round) }}" class="btn btn-primary w-100">Demos {{cur_round+1}}</a> {% else %}
+            <a href="{{ url_for('demos', round=cur_round) }}" class="btn btn-primary w-100 disabled">Demos {{cur_round+1}} Completed</a> {% endif %}
         </div>
     </div>
-
     <div class="col">
-        <div class="card" style="width: 100%;">
-            <div class="card-body">
-                <h5 class="card-title">Demonstrations</h5>
-                {% if consent and training%}
-                <p class="card-text">You have seen {{num_completed_demos}} out of {{num_demos}} demonstrations.</p>
-                <p>
-
-                    {% if num_completed_demos == num_demos %}
-                    <a href="#" class="btn btn-secondary w-100" disabled>All Demonstrations Complete</a> {% else %}
-                    <a href="{{ url_for('demos') }}" class="btn btn-primary w-100">See Remaining Demonstrations</a> {% endif %}
-                </p>
-                {% else %}
-                <p>Please complete the consent and training before starting the demonstrations</p>
-                {% endif %} {% if debug_mode %}
-                <p>
-                    <form action="" method="post">
-                        {{ clear_demo_form.hidden_tag() }} {{ clear_demo_form.submit_demo(class="btn btn-danger w-100") }}
-                    </form>
-                </p>
-                {% endif %}
-            </div>
+        <div class="card-body">
+            {% if not completed[cur_round][1] %}
+            <a href="{{ url_for('trials', round=cur_round) }}" class="btn btn-primary w-100">Trials {{cur_round+1}}</a> {% else %}
+            <a href="{{ url_for('trials', round=cur_round) }}" class="btn btn-primary w-100 disabled">Trials {{cur_round+1}} Completed</a> {% endif %}
         </div>
     </div>
-
     <div class="col">
-        <div class="card" style="width: 100%;">
-            <div class="card-body">
-                <h5 class="card-title">Trials</h5>
-                {% if num_completed_demos == num_demos and consent and training %}
-                <p class="card-text">You have completed {{num_completed_trials}} out of {{num_trials}} trials.</p>
-                <p>
-                    {% if num_completed_trials == num_trials %}
-                    <a href="#" class="btn btn-secondary w-100" disabled>All Trials Complete</a> {% else %}
-                    <a href="{{ url_for('trials') }}" class="btn btn-primary w-100">Continue Your Trials</a> {% endif %}
-                </p>
-
-                {% else %}
-                <p>Please complete the consent, training, and demonstrations before starting the trials.</p>
-                {% endif %} {% if debug_mode %}
-                <p>
-                    <form action="" method="post">
-                        {{ clear_trial_form.hidden_tag() }} {{ clear_trial_form.submit_trial(class="btn btn-danger w-100") }}
-                    </form>
-                </p>
-                {% endif %}
-            </div>
+        <div class="card-body">
+            {% if not completed[cur_round][2] %}
+            <a href="{{ url_for('survey', round=cur_round) }}" class="btn btn-primary w-100">Survey {{cur_round+1}}</a> {% else %}
+            <a href="{{ url_for('survey', round=cur_round) }}" class="btn btn-primary w-100 disabled">Survey {{cur_round+1}} Completed</a> {% endif %}
         </div>
     </div>
-
-    <div class="col">
-        <div class="card" style="width: 100%;">
-            <div class="card-body">
-                <h5 class="card-title">Survey</h5>
-                {% if num_completed_trials == num_trials and num_completed_demos == num_demos and consent and training %} {% if survey %}
-                <a href="#" class="btn btn-secondary w-100" disabled>Survey Complete</a> {% else %}
-                <a href="{{ url_for('survey') }}" class="btn btn-primary w-100">Complete the Survey</a> {% endif %} {% else %}
-                <p>Please complete the consent, training, demonstrations, and trials before starting the survey.</p>
-                {% endif %} {% if debug_mode %}
-                <p>
-                    <form action="" method="post">
-                        {{ clear_survey_form.hidden_tag() }} {{ clear_survey_form.submit_survey(class="btn btn-danger w-100") }}
-                    </form>
-                </p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div> -->
-{% endblock %}
+</div>
+{% endfor %} {% endblock %}
