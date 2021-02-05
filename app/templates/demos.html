@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block content %}
+<h1>Demonstrations {{round+1}}</h1>
 <div class="progress" style="height: 50px">
     <div class="progress-bar" role="progressbar" style="width: {{ num_completed_demos/num_demos*100 }}%;" aria-valuenow="{{num_completed_demos}}" aria-valuemin="0" aria-valuemax="{{num_demos}}">
         {{num_completed_demos}} out of {{num_demos}}</div>
@@ -16,11 +17,24 @@
         <div class="row bin-row">
             {% for bin_id in range(num_bins) %}
             <div id="bin{{bin_id}}" class="bin col">
-                {% if correct_bin[bin_id] %}
-                <div class="card obj" style="width: 8rem;">
-                    <img class="card-img-top" src="../static/cards/{{card}}.png">
+                <div class="col-6" style="float:left;">
+                    {% if correct_bin[bin_id] %}
+                    <div class="card obj" style="width: 8rem; border: 5px solid black;">
+                        <img class="card-img-top" src="../static/cards/{{card}}.png">
+                    </div>
+                    {% endif %} {% for card_id in range(previous_cards[bin_id]|length) %} {% if card_id % 2 == 1 %}
+                    <div class="card obj prev-card" style="width: 8rem">
+                        <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{previous_cards[bin_id][card_id]}}.png">
+                    </div>
+                    {% endif %} {% endfor %}
                 </div>
-                {% endif %}
+                <div class="col-6" style="float:right;">
+                    {% for card_id in range(previous_cards[bin_id]|length) %} {% if card_id % 2 == 0 %}
+                    <div class="card obj prev-card" style="width: 8rem">
+                        <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{previous_cards[bin_id][card_id]}}.png">
+                    </div>
+                    {% endif %} {% endfor %}
+                </div>
             </div>
             {% endfor %}
         </div>

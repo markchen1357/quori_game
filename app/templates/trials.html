@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% block content %}
-
+<h1>Trials {{round+1}}</h1>
 <div class="progress" style="height: 50px">
     <div class="progress-bar" role="progressbar" style="width: {{ num_completed_trials/num_trials*100 }}%;" aria-valuenow="{{num_completed_trials}}" aria-valuemin="0" aria-valuemax="{{num_trials}}">
         {{num_completed_trials}} out of {{num_trials}}</div>
@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col"></div>
             <div id="staging" class="staging col">
-                <div class="card obj" style="width: 8rem;">
+                <div class="card obj" style="width: 8rem; border: 5px solid black;">
                     <img class="card-img-top" src="../static/cards/{{card}}.png">
                 </div>
             </div>
@@ -18,11 +18,20 @@
         <div class="row bin-row">
             {% for bin_id in range(num_bins) %}
             <div id="bin{{bin_id}}" class="bin col">
-                {% for card in previous_cards[bin_id] %}
-                <div class="card obj prev-card" style="width: 8rem">
-                    <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{card}}.png">
+                <div class="col-6" style="float:left;">
+                    {% for card_id in range(previous_cards[bin_id]|length) %} {% if card_id % 2 == 1 %}
+                    <div class="card obj prev-card" style="width: 8rem">
+                        <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{previous_cards[bin_id][card_id]}}.png">
+                    </div>
+                    {% endif %} {% endfor %}
                 </div>
-                {% endfor %}
+                <div class="col-6" style="float:right;">
+                    {% for card_id in range(previous_cards[bin_id]|length) %} {% if card_id % 2 == 0 %}
+                    <div class="card obj prev-card" style="width: 8rem">
+                        <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{previous_cards[bin_id][card_id]}}.png">
+                    </div>
+                    {% endif %} {% endfor %}
+                </div>
             </div>
             {% endfor %}
         </div>

@@ -1,46 +1,23 @@
 {% extends "base.html" %} {% block content %}
 <h1>Home</h1>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        {% if completed[num_rounds-1][2] %}
+        <h3>Study Completed</h3>
+        <hr class="my-4">
+        <p class="lead">Please enter the following code into MTurk and submit the HIIT</p>
+        <p class="lead">
+            {{code}}
+        </p>
+        {% else %}
+        <h3>Study Incomplete</h3>
+        <hr class="my-4">
+        <p class="lead">Please complete the study here.</p>
+        <p class="lead">
+            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100">Continue</a>
+        </p>
+        {% endif %}
+    </div>
 
-<h3>Consent and Training</h3>
-<div class="row">
-    <div class="col">
-        <div class="card-body">
-            {% if not consent %}
-            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100">Complete Consent Form</a> {% else %}
-            <a href="{{ url_for('consent') }}" class="btn btn-primary w-100 disabled">Consent Completed</a> {% endif %}
-        </div>
-    </div>
-    <div class="col">
-        <div class="card-body">
-            {% if not training %}
-            <a href="{{ url_for('training') }}" class="btn btn-primary w-100">Complete Training Form</a> {% else %}
-            <a href="{{ url_for('training') }}" class="btn btn-primary w-100 disabled">Training Completed</a> {% endif %}
-        </div>
-    </div>
 </div>
-{% for cur_round in range(num_rounds) %}
-<h3>Round {{cur_round+1}}</h3>
-<div class="row">
-    <div class="col">
-        <div class="card-body">
-            {% if not completed[cur_round][0] %}
-            <a href="{{ url_for('demos', round=cur_round) }}" class="btn btn-primary w-100">Demos {{cur_round+1}}</a> {% else %}
-            <a href="{{ url_for('demos', round=cur_round) }}" class="btn btn-primary w-100 disabled">Demos {{cur_round+1}} Completed</a> {% endif %}
-        </div>
-    </div>
-    <div class="col">
-        <div class="card-body">
-            {% if not completed[cur_round][1] %}
-            <a href="{{ url_for('trials', round=cur_round) }}" class="btn btn-primary w-100">Trials {{cur_round+1}}</a> {% else %}
-            <a href="{{ url_for('trials', round=cur_round) }}" class="btn btn-primary w-100 disabled">Trials {{cur_round+1}} Completed</a> {% endif %}
-        </div>
-    </div>
-    <div class="col">
-        <div class="card-body">
-            {% if not completed[cur_round][2] %}
-            <a href="{{ url_for('survey', round=cur_round) }}" class="btn btn-primary w-100">Survey {{cur_round+1}}</a> {% else %}
-            <a href="{{ url_for('survey', round=cur_round) }}" class="btn btn-primary w-100 disabled">Survey {{cur_round+1}} Completed</a> {% endif %}
-        </div>
-    </div>
-</div>
-{% endfor %} {% endblock %}
+{% endblock %}

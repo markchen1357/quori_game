@@ -3,6 +3,8 @@ from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+import random
+import string
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,6 +16,7 @@ class User(UserMixin, db.Model):
     surveys = db.relationship("Survey", backref="author", lazy="dynamic")
 
     condition_id = db.Column(db.Integer, db.ForeignKey("condition.id"))
+    code = db.Column(db.String(20))
 
     consent = db.Column(db.Integer)
     training = db.Column(db.Integer)
@@ -37,6 +40,11 @@ class User(UserMixin, db.Model):
         min_count = db.session.query(func.min(Condition.count)).scalar()
         min_cond = db.session.query(Condition).filter_by(count = min_count).first()
         return min_cond
+
+    def set_code(self):
+        code = ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=10))
+        self.code = code
+        return code
 
 @login.user_loader
 def load_user(id):
