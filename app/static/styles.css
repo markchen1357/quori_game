@@ -13,8 +13,8 @@
 
 .bin {
     padding: 1em;
-    margin: 1em;
-    min-height: 150px;
+    margin: 0em;
+    min-height: 300px;
 }
 
 .staging {
@@ -22,48 +22,49 @@
     margin: 1em;
     min-height: 150px;
     background-color: lightgray;
-    max-width: 150px;
+    max-width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.left-bin {
+    float: left;
+}
+
+.right-bin {
+    float: right;
 }
 
 .obj {
     padding: 0em;
     margin: 0em;
+    width: 8rem;
 }
 
-.bin:first-child {
+.current-card {
+    border: 5px solid black;
+}
+
+.prev-card>img {
+    opacity: 0.6;
+}
+
+.robot-video {
+    width: 100%;
+    height: auto;
+}
+
+#next-demo {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#bin0 {
     background-color: red;
 }
 
-.bin:nth-child(2) {
+#bin1 {
     background-color: orange;
-}
-
-.bin:nth-child(3) {
-    background-color: yellow;
-}
-
-.bin:nth-child(4) {
-    background-color: Chartreuse;
-}
-
-.bin:nth-child(5) {
-    background-color: cyan;
-}
-
-.bin:nth-child(6) {
-    background-color: blue;
-}
-
-.bin:nth-child(7) {
-    background-color: DarkOrchid;
-}
-
-.bin:nth-child(8) {
-    background-color: DeepPink;
-}
-
-.bin:nth-child(9) {
-    background-color: red;
 }
 
 .training-text {

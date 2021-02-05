@@ -1,10 +1,77 @@
 {% extends "base.html" %} {% block content %}
-<h1>Trials {{round+1}}</h1>
+<h1>Trials - Round {{round+1}}</h1>
 <div class="progress" style="height: 50px">
     <div class="progress-bar" role="progressbar" style="width: {{ num_completed_trials/num_trials*100 }}%;" aria-valuenow="{{num_completed_trials}}" aria-valuemin="0" aria-valuemax="{{num_trials}}">
         {{num_completed_trials}} out of {{num_trials}}</div>
 </div>
-<div class="row" style="padding: 2em;">
+
+<div class="row">
+    <div id="staging" class="staging col-5">
+        <div class="card obj current-card">
+            <img class="card-img-top" src="../static/cards/{{card}}.png">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-3">
+        <div id="bin0" class="bin col">
+            <div class="left-bin col-6">
+                {% for card_id in range(previous_cards[0]|length) %} {% if card_id % 2 == 1 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[0][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
+            </div>
+            <div class="right-bin col-6">
+                {% for card_id in range(previous_cards[0]|length) %} {% if card_id % 2 == 0 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[0][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <video id="robot-video" class="robot-video z-depth-1" autoplay loop muted>
+            <source id="robot-video-source" src="../static/robot/neutral.mp4" type="video/mp4" />
+        </video>
+    </div>
+    <div class="col-3">
+        <div id="bin1" class="bin col">
+            <div class="left-bin col-6">
+                {% for card_id in range(previous_cards[1]|length) %} {% if card_id % 2 == 1 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[1][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
+            </div>
+            <div class="right-bin col-6">
+                {% for card_id in range(previous_cards[1]|length) %} {% if card_id % 2 == 0 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[1][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div id="next-demo" class="col-5">
+        <button type="button" class="btn btn-dark btn-lg w-100" id="submit_choice_btn" onclick="showFeedback()">Submit Choice</button>
+        <span id="current-chosen-bin" class="invisible">staging</span>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <!-- {% for error in form.chosen_bin.errors %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endfor %} -->
+            <span class="invisible">{{ form.submit_trial(class="btn btn-dark btn-lg w-100") }}</span>
+            <span class="invisible">{{ form.chosen_bin(cols=32, rows=4) }} </span>
+        </form>
+    </div>
+</div>
+
+<!-- <div class="row" style="padding: 2em;">
     <div class="col-8">
         <div class="row">
             <div class="col"></div>
@@ -60,15 +127,15 @@
         <form action="" method="post">
             {{ form.hidden_tag() }}
 
-            <!-- {% for error in form.chosen_bin.errors %}
+            {% for error in form.chosen_bin.errors %}
                 <div class="alert alert-danger" role="alert">{{ error }}</div>
-            {% endfor %} -->
-            {{ form.submit_trial(class="btn btn-dark btn-lg w-100") }}
-            <span class="invisible">{{ form.chosen_bin(cols=32, rows=4) }} </span>
-        </form>
+            {% endfor %}
+{{ form.submit_trial(class="btn btn-dark btn-lg w-100") }}
+<span class="invisible">{{ form.chosen_bin(cols=32, rows=4) }} </span>
+</form>
 
-    </div>
 </div>
+</div> -->
 
 <script src="../static/trials_script.js"></script>
 {% endblock %}

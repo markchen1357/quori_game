@@ -18,64 +18,34 @@ var drake = dragula(dragArr, {
         };
     },
 }).on("drop", function(el) {
-    var chosen_bin = document.getElementById("chosen_bin");
-    chosen_bin.value = el.parentElement.id;
+    var chosen_bin = document.getElementById("current-chosen-bin");
+    chosen_bin.textContent = el.parentElement.id;
     console.log("Moved to " + el.parentElement.id);
 });
 
-var submit_trial_btn = document.getElementById("submit_trial");
-submit_trial_btn.disabled = true;
-
 function showFeedback() {
-    var feedback_box = document.getElementById("feedback_text");
-    var chosen_bin = document.getElementById("chosen_bin").value;
     var submit_choice_btn = document.getElementById("submit_choice_btn");
-    var submit_trial_btn = document.getElementById("submit_trial");
-    // var feedback_type = document.getElementById("feedback_type").innerHTML;
-    // console.log(feedback_type);
-
+    var chosen_bin = document.getElementById("current-chosen-bin").textContent;
+    var video_obj = document.getElementById("robot-video");
+    console.log("Chose " + chosen_bin);
     if (chosen_bin == "staging" || chosen_bin == "") {
-        feedback_box.innerHTML = "Please choose a bin for the card!";
+        alert("Please choose one of the two bins!")
     } else {
-        // if (feedback_type == "text" || feedback_type == "both") {
-        //     feedback_box.innerHTML = $("bin_text_feedback" + chosen_bin[3]).innerHTML + " Go to the next trial.";
-        // }
-        // if (feedback_type == "nonverbal" || feedback_type == "both") {
-        //     var nonverbal = $("bin_nonverbal_feedback" + chosen_bin[3]).innerHTML.split(";");
-        //     var images = []
-        //     for (i = 0; i < nonverbal.length - 1; i++) {
-        //         images.push(nonverbal[i]);
-        //     }
-        //     var interval = parseInt(nonverbal[nonverbal.length - 1])
-
-        //     looper(images, interval, "robot");
-        // }
-        // if (feedback_type == "none") {
-        //     feedback_box.innerHTML = "Go to the next trial.";
-        // }
-        submit_choice_btn.disabled = true;
-        submit_trial_btn.disabled = false;
+        submit_choice_btn.classList.add("invisible");
         drake.destroy();
+        var video_name = '../static/robot/' + 'happy' + '.mp4'; //Replace this when we have all the videos
+        video_obj.innerHTML = '<source id="robot-video-source" src="' + video_name + '" type="video/mp4">';
+        video_obj.addEventListener('ended', videoEnded, false);
+        video_obj.loop = false
+        video_obj.load();
+        video_obj.play();
     }
 }
 
-function looper(images, interval, image_id) {
-    current_image = document.getElementById(image_id).src;
-    timeout = setTimeout(function() {
-        if (images.length == 2) {
-            if (current_image == images[0]) {
-                document.getElementById(image_id).src = images[1];
-                looper(images, interval, image_id);
-            } else {
-                document.getElementById(image_id).src = images[0];
-                looper(images, interval, image_id);
-            }
-        }
-
-    }, interval);
-
-}
-
-document.getElementById("submit_trial").onclick = function() {
-    clearTimeout(timeout);
+function videoEnded(e) {
+    // What you want to do after the event
+    var chosen_bin_obj = document.getElementById("chosen_bin");
+    chosen_bin_obj.value = document.getElementById('current-chosen-bin').textContent;
+    var submit_trial_btn = document.getElementById("submit_trial");
+    submit_trial_btn.click();
 }

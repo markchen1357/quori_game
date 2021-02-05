@@ -1,58 +1,69 @@
 {% extends "base.html" %} {% block content %}
-<h1>Demonstrations {{round+1}}</h1>
+<h1>Demonstrations - Round {{round+1}}</h1>
 <div class="progress" style="height: 50px">
     <div class="progress-bar" role="progressbar" style="width: {{ num_completed_demos/num_demos*100 }}%;" aria-valuenow="{{num_completed_demos}}" aria-valuemin="0" aria-valuemax="{{num_demos}}">
         {{num_completed_demos}} out of {{num_demos}}</div>
 </div>
 
-<div class="row" style="padding: 2em;">
-    <div class="col-8">
-        <div class="row">
-            <div class="col"></div>
-            <div id="staging" class="staging col">
+<div class="row">
+    <div id="staging" class="staging col-5">
 
-            </div>
-            <div class="col"></div>
-        </div>
-        <div class="row bin-row">
-            {% for bin_id in range(num_bins) %}
-            <div id="bin{{bin_id}}" class="bin col">
-                <div class="col-6" style="float:left;">
-                    {% if correct_bin[bin_id] %}
-                    <div class="card obj" style="width: 8rem; border: 5px solid black;">
-                        <img class="card-img-top" src="../static/cards/{{card}}.png">
-                    </div>
-                    {% endif %} {% for card_id in range(previous_cards[bin_id]|length) %} {% if card_id % 2 == 1 %}
-                    <div class="card obj prev-card" style="width: 8rem">
-                        <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{previous_cards[bin_id][card_id]}}.png">
-                    </div>
-                    {% endif %} {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-3">
+        <div id="bin0" class="bin col">
+            <div class="left-bin col-6">
+                {% if correct_bin[0] %}
+                <div class="card obj current-card">
+                    <img class="card-img-top" src="../static/cards/{{card}}.png">
                 </div>
-                <div class="col-6" style="float:right;">
-                    {% for card_id in range(previous_cards[bin_id]|length) %} {% if card_id % 2 == 0 %}
-                    <div class="card obj prev-card" style="width: 8rem">
-                        <img class="card-img-top" style="opacity: 0.6;" src="../static/cards/{{previous_cards[bin_id][card_id]}}.png">
-                    </div>
-                    {% endif %} {% endfor %}
+                {% endif %} {% for card_id in range(previous_cards[0]|length) %} {% if card_id % 2 == 1 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[0][card_id]}}.png">
                 </div>
+                {% endif %} {% endfor %}
             </div>
-            {% endfor %}
+            <div class="right-bin col-6">
+                {% for card_id in range(previous_cards[0]|length) %} {% if card_id % 2 == 0 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[0][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
+            </div>
         </div>
     </div>
-    <div class="col-4">
-        <div class="row">
-            <div class="col-7">
-                <img class="card-img-top w-100" style="padding: 0.5em;" src="../static/peach_static.png">
-            </div>
-            <div class="col-5">
-                <div class="card w-100" style="padding: 0.5em;">
-                    <div class="card-body" id="feedback_text">
-                        Let me show you where this card goes. Click Next Demonstration to see another example.
-                    </div>
+    <div class="col">
+        <video class="robot-video z-depth-1" autoplay loop controls muted>
+            <source src="../static/robot/neutral.mp4" type="video/mp4" />
+        </video>
+    </div>
+    <div class="col-3">
+        <div id="bin1" class="bin col">
+            <div class="left-bin col-6">
+                {% if correct_bin[1] %}
+                <div class="card obj current-card">
+                    <img class="card-img-top" src="../static/cards/{{card}}.png">
                 </div>
+                {% endif %} {% for card_id in range(previous_cards[1]|length) %} {% if card_id % 2 == 1 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[1][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
+            </div>
+            <div class="right-bin col-6">
+                {% for card_id in range(previous_cards[1]|length) %} {% if card_id % 2 == 0 %}
+                <div class="card obj prev-card">
+                    <img class="card-img-top" src="../static/cards/{{previous_cards[1][card_id]}}.png">
+                </div>
+                {% endif %} {% endfor %}
             </div>
         </div>
-
+    </div>
+</div>
+<br>
+<div class="row">
+    <div id="next-demo" class="col-5">
         <form action="" method="post">
             {{ form.hidden_tag() }} {{ form.submit_demo(class="btn btn-dark btn-lg w-100") }}
         </form>
