@@ -14,35 +14,50 @@
 .bin {
     padding: 1em;
     margin: 0em;
-    min-height: 300px;
+    min-height: 100%;
 }
 
 .staging {
-    padding: 1em;
+    padding: 0.5em;
     margin: 1em;
-    min-height: 150px;
+    min-height: 5em;
     background-color: lightgray;
-    max-width: 250px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .left-bin {
     float: left;
+    padding: 0;
+    margin: 0;
 }
 
 .right-bin {
     float: right;
+    padding: 0;
+    margin: 0;
 }
 
 .obj {
     padding: 0em;
     margin: 0em;
-    width: 8rem;
+    width: 85%;
 }
 
 .current-card {
-    border: 5px solid black;
+    border: 0.2rem solid black;
+}
+
+.staging>.current-card {
+    width: 50%;
+}
+
+#bin0>.current-card {
+    width: 45%;
+}
+
+#bin1>.current-card {
+    width: 45%;
 }
 
 .prev-card>img {
