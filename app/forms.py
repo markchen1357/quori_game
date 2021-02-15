@@ -27,7 +27,7 @@ class RegistrationForm(FlaskForm):
 
 class TrialForm(FlaskForm):
     chosen_bin = StringField()
-
+    start_time = StringField()
     def validate_chosen_bin(self, chosen_bin):
         if len(chosen_bin.data) < 3:
             raise ValidationError("Please choose a bin")

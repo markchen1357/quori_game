@@ -14,6 +14,7 @@ login.login_view = "login"
 
 from app import routes, models
 
+##Comment out below when initializing database
 from app.params import CONDITIONS
 rows = db.session.query(models.Condition).count()
 if rows == 0:

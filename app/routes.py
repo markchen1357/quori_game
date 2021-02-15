@@ -6,7 +6,7 @@ from app.forms import LoginForm, RegistrationForm, TrialForm, DemoForm, ConsentF
 from app.models import User, Trial, Demo, Condition, Survey
 from app.params import *
 from utils import rules_to_str, str_to_rules
-
+from datetime import datetime
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -168,7 +168,8 @@ def demos(round):
 @app.route("/trials/<int:round>", methods=["GET", "POST"])
 @login_required
 def trials(round):
-    form = TrialForm()
+    start_time = datetime.now().utcnow().isoformat()
+    form = TrialForm(start_time=start_time)
     
     num_completed_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=round).count()
     
@@ -188,16 +189,19 @@ def trials(round):
 
     if form.validate_on_submit():
         chosen_bin = int(form.chosen_bin.data[3])
+        start_time = datetime.fromisoformat(form.start_time.data)
+        end_time = datetime.now().utcnow()
+        total_seconds = (end_time - start_time).total_seconds()
         trial = Trial(author=current_user,
                       trial_num=num_completed_trials + 1,
                       card_num=cards[num_completed_trials],
                       round_num=round,
                       correct_bin=answers[num_completed_trials],
                       chosen_bin=chosen_bin,
-                      text_feedback='',
-                      nonverbal_feedback='',
+                      feedback='',
                       feedback_type='',
-                      rule_set=rule)
+                      rule_set=rule,
+                      time=total_seconds)
         db.session.add(trial)
         db.session.commit()
         return redirect(url_for('trials', round=round))
@@ -244,7 +248,8 @@ def trials(round):
         num_completed_trials=num_completed_trials + 1,
         num_trials=len(cards),
         previous_cards=previous_cards,
-        round=round)
+        round=round,
+        start_time=start_time)
 
 @app.route("/survey/<int:round>", methods=["GET", "POST"])
 @login_required
