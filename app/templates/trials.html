@@ -12,7 +12,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row" style="min-height: 40%">
     <div class="col-3">
         <div id="bin0" class="bin col">
             <div class="left-bin col-6">
@@ -32,9 +32,9 @@
         </div>
     </div>
     <div class="col">
-        <video id="robot-video" class="robot-video z-depth-1" autoplay loop muted>
+        <!-- <video id="robot-video" class="robot-video z-depth-1" autoplay loop muted>
             <source id="robot-video-source" src="../static/robot/neutral.mp4" type="video/mp4" />
-        </video>
+        </video> -->
     </div>
     <div class="col-3">
         <div id="bin1" class="bin col">
@@ -60,6 +60,7 @@
     <div id="next-demo" class="col-5">
         <button type="button" class="btn btn-dark btn-lg w-100" id="submit_choice_btn" onclick="showFeedback()">Submit Choice</button>
         <span id="current-chosen-bin" class="invisible">staging</span>
+        <span id="correct_bin" class="invisible">{{correct_bin}}</span>
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <!-- {% for error in form.chosen_bin.errors %}

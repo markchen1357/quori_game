@@ -5,13 +5,13 @@
         {{num_completed_demos}} out of {{num_demos}}</div>
 </div>
 
-<div class="row">
+<div class="row" style="min-height: 20%">
     <div id="staging" class="staging col-2">
 
     </div>
 </div>
-<div class="row">
-    <div class="col-3">
+<div class="row" style="min-height: 40%">
+    <div class="col-4">
         <div id="bin0" class="bin col">
             <div class="left-bin col-6">
                 {% if correct_bin[0] %}
@@ -34,11 +34,11 @@
         </div>
     </div>
     <div class="col">
-        <video class="robot-video z-depth-1" autoplay loop controls muted>
+        <!-- <video class="robot-video z-depth-1" autoplay loop controls muted>
             <source src="../static/robot/neutral.mp4" type="video/mp4" />
-        </video>
+        </video> -->
     </div>
-    <div class="col-3">
+    <div class="col-4">
         <div id="bin1" class="bin col">
             <div class="left-bin col-6">
                 {% if correct_bin[1] %}

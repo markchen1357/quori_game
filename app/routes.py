@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, TrialForm, DemoForm, ConsentForm, TrainingForm, SurveyForm
-from app.models import User, Trial, Demo, Condition, Survey
+from app.models import User, Trial, Demo, Survey, Condition
 from app.params import *
 from utils import rules_to_str, str_to_rules
 
@@ -194,9 +194,6 @@ def trials(round):
                       round_num=round,
                       correct_bin=answers[num_completed_trials],
                       chosen_bin=chosen_bin,
-                      text_feedback='',
-                      nonverbal_feedback='',
-                      feedback_type='',
                       rule_set=rule)
         db.session.add(trial)
         db.session.commit()

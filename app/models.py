@@ -60,9 +60,6 @@ class Trial(db.Model):
     card_num = db.Column(db.Integer)
     correct_bin = db.Column(db.PickleType)
     chosen_bin = db.Column(db.Integer)
-    text_feedback = db.Column(db.String(300))
-    nonverbal_feedback = db.Column(db.String(300))
-    feedback_type = db.Column(db.String(20))
     rule_set = db.Column(db.PickleType)
 
 
