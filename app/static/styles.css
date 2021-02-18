@@ -20,7 +20,7 @@
 .staging {
     padding: 0.5em;
     margin: 1em;
-    min-height: 5em;
+    min-height: 8em;
     background-color: lightgray;
     margin-left: auto;
     margin-right: auto;
@@ -49,7 +49,7 @@
 }
 
 .staging>.current-card {
-    width: 50%;
+    width: 100%;
 }
 
 #bin0>.current-card {

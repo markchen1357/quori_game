@@ -194,7 +194,8 @@ def trials(round):
                       round_num=round,
                       correct_bin=answers[num_completed_trials],
                       chosen_bin=chosen_bin,
-                      rule_set=rule)
+                      rule_set=rule,
+                      confidence=int(form.confidence.data))
         db.session.add(trial)
         db.session.commit()
         return redirect(url_for('trials', round=round))

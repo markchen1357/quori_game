@@ -61,6 +61,7 @@ class Trial(db.Model):
     correct_bin = db.Column(db.PickleType)
     chosen_bin = db.Column(db.Integer)
     rule_set = db.Column(db.PickleType)
+    confidence = db.Column(db.Integer)
 
 
 class Demo(db.Model):

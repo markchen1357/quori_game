@@ -33,7 +33,7 @@ class TrialForm(FlaskForm):
             raise ValidationError("Please choose a bin")
         if not (chosen_bin.data[0] == "b"):
             raise ValidationError("Please choose a bin")
-
+    confidence = RadioField("", choices=[(0, "Not at all"), (1, "Slightly"), (2, "Moderately"), (3, "Very"), (4, "Extremely")])
     submit_trial = SubmitField("Next Trial")
 
 class ConsentForm(FlaskForm):

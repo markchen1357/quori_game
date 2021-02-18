@@ -21,10 +21,15 @@ var drake = dragula(dragArr, {
     var chosen_bin = document.getElementById("current-chosen-bin");
     chosen_bin.textContent = el.parentElement.id;
     console.log("Moved to " + el.parentElement.id);
+    var cur_confidence;
+    for (var ii = 0; ii < 5; ii++) {
+        cur_confidence = document.getElementById("confidence-" + ii);
+        cur_confidence.disabled = false;
+    }
 });
 
 function showFeedback() {
-    var submit_choice_btn = document.getElementById("submit_choice_btn");
+    // var submit_choice_btn = document.getElementById("submit_choice_btn");
     var chosen_bin = document.getElementById("current-chosen-bin").textContent;
     var correct_bin = document.getElementById("correct_bin").textContent;
     var bin0_correct = correct_bin.substring(correct_bin.lastIndexOf("[") + 1, correct_bin.lastIndexOf(",")) == 'True';
@@ -35,34 +40,38 @@ function showFeedback() {
     if (chosen_bin == "staging" || chosen_bin == "") {
         alert("Please choose one of the two bins!")
     } else {
-        submit_choice_btn.classList.add("invisible");
+        // Get the selection
+        var cur_confidence;
+        var confidence;
+        for (var ii = 0; ii < 5; ii++) {
+            cur_confidence = document.getElementById("confidence-" + ii);
+            if (cur_confidence.checked) {
+                confidence = cur_confidence.value;
+            }
+        }
+
+        // submit_choice_btn.classList.add("invisible");
         drake.destroy();
         var chosen_bin_obj = document.getElementById("chosen_bin");
         chosen_bin_obj.value = document.getElementById('current-chosen-bin').textContent;
 
-        if (chosen_bin == 'bin0') {
-            if (bin0_correct) {
-                alert("Correct!")
-            } else {
-                alert("Incorrect!")
-            }
-        }
-        if (chosen_bin == 'bin1') {
-            if (bin1_correct) {
-                alert("Correct!")
-            } else {
-                alert("Incorrect!")
-            }
-        }
+        // if (chosen_bin == 'bin0') {
+        //     if (bin0_correct) {
+        //         alert("Correct!")
+        //     } else {
+        //         alert("Incorrect!")
+        //     }
+        // }
+        // if (chosen_bin == 'bin1') {
+        //     if (bin1_correct) {
+        //         alert("Correct!")
+        //     } else {
+        //         alert("Incorrect!")
+        //     }
+        // }
 
         var submit_trial_btn = document.getElementById("submit_trial");
         submit_trial_btn.click();
-        // var video_name = '../static/robot/' + 'happy' + '.mp4'; //Replace this when we have all the videos
-        // video_obj.innerHTML = '<source id="robot-video-source" src="' + video_name + '" type="video/mp4">';
-        // video_obj.addEventListener('ended', videoEnded, false);
-        // video_obj.loop = false
-        // video_obj.load();
-        // video_obj.play();
     }
 }
 

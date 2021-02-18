@@ -1,8 +1,8 @@
 """user table
 
-Revision ID: 12b1be3c92ac
+Revision ID: 430d246f8558
 Revises: 
-Create Date: 2021-02-15 15:48:55.802703
+Create Date: 2021-02-18 10:11:56.587389
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '12b1be3c92ac'
+revision = '430d246f8558'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -76,6 +76,7 @@ def upgrade():
     sa.Column('correct_bin', sa.PickleType(), nullable=True),
     sa.Column('chosen_bin', sa.Integer(), nullable=True),
     sa.Column('rule_set', sa.PickleType(), nullable=True),
+    sa.Column('confidence', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
