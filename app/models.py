@@ -17,7 +17,7 @@ class User(UserMixin, db.Model):
 
     condition_id = db.Column(db.Integer, db.ForeignKey("condition.id"))
     code = db.Column(db.String(20))
-
+    feedback_counts = db.Column(db.PickleType)
     consent = db.Column(db.Integer)
     training = db.Column(db.Integer)
     age = db.Column(db.Integer)
@@ -60,10 +60,8 @@ class Trial(db.Model):
     card_num = db.Column(db.Integer)
     correct_bin = db.Column(db.PickleType)
     chosen_bin = db.Column(db.Integer)
-    feedback = db.Column(db.String(300))
-    feedback_type = db.Column(db.String(20))
+    feedback = db.Column(db.Integer)
     rule_set = db.Column(db.PickleType)
-    time = db.Column(db.Float)
 
 class Demo(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -33,7 +33,7 @@
     </div>
     <div class="col">
         <video id="robot-video" class="robot-video z-depth-1" autoplay loop muted>
-            <source id="robot-video-source" src="../static/robot/neutral.mp4" type="video/mp4" />
+            <source id="robot-video-source" src="../static/robot/{{vid_name}}.mp4" type="video/mp4" />
         </video>
     </div>
     <div class="col-3">
@@ -67,8 +67,11 @@
             {% endfor %} -->
             <span class="invisible">{{ form.submit_trial(class="btn btn-dark btn-lg w-100") }}</span>
             <span class="invisible">{{ form.chosen_bin(cols=32, rows=4) }} </span>
-            <span class="invisible">{{ form.start_time(cols=32, rows=4) }} </span>
+            <span class="invisible">{{ form.feedback_chosen(cols=32, rows=4) }} </span>
         </form>
+        <span class="invisible" id='correct_bin'>{{correct_bin}}</span>
+        <span class="invisible" id='correct_vid_name'>{{correct_vid_name}}</span>
+        <span class="invisible" id='incorrect_vid_name'>{{incorrect_vid_name}}</span>
     </div>
 </div>
 

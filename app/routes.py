@@ -6,7 +6,7 @@ from app.forms import LoginForm, RegistrationForm, TrialForm, DemoForm, ConsentF
 from app.models import User, Trial, Demo, Condition, Survey
 from app.params import *
 from utils import rules_to_str, str_to_rules
-from datetime import datetime
+import numpy as np
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -101,7 +101,7 @@ def demos(round):
     rule = RULE_PROPS[rule_name]['rule']
     demo_cards = RULE_PROPS[rule_name]['demo_cards']
     demo_answers = RULE_PROPS[rule_name]['demo_answers']
-
+    
     previous_cards = [[], []]
     for ii in range(num_completed_demos):
         if demo_answers[ii][0]:
@@ -153,6 +153,22 @@ def demos(round):
                 flash("You must complete the modules in order!")
                 return redirect(url_for("survey", round=check_round))
 
+    #Get the video to play
+    feedback_counts = current_user.feedback_counts
+    cur_names = []
+    cur_counts = []
+    for vid_name in NEUTRAL:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        cur_counts = np.ones_like(cur_counts)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
+    vid_name = cur_names[vid_choice]
+    feedback_counts[vid_name] += 1
+    current_user.feedback_counts = feedback_counts
+    db.session.commit()
+
     #Render the next demonstration
     return render_template("demos.html",
         title="Demonstrations",
@@ -163,7 +179,8 @@ def demos(round):
         num_completed_demos=num_completed_demos + 1,
         num_demos=len(demo_cards),
         previous_cards=previous_cards,
-        round=round)
+        round=round,
+        vid_name=vid_name)
 
 @app.route("/trials/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -189,19 +206,15 @@ def trials(round):
 
     if form.validate_on_submit():
         chosen_bin = int(form.chosen_bin.data[3])
-        start_time = datetime.fromisoformat(form.start_time.data)
-        end_time = datetime.now().utcnow()
-        total_seconds = (end_time - start_time).total_seconds()
+        feedback_chosen = form.feedback_chosen.data
         trial = Trial(author=current_user,
                       trial_num=num_completed_trials + 1,
                       card_num=cards[num_completed_trials],
                       round_num=round,
                       correct_bin=answers[num_completed_trials],
                       chosen_bin=chosen_bin,
-                      feedback='',
-                      feedback_type='',
-                      rule_set=rule,
-                      time=total_seconds)
+                      feedback=feedback_chosen,
+                      rule_set=rule)
         db.session.add(trial)
         db.session.commit()
         return redirect(url_for('trials', round=round))
@@ -238,18 +251,66 @@ def trials(round):
             if check_previous_surveys < 1:
                 flash("You must complete the modules in order!")
                 return redirect(url_for("survey", round=check_round))
-        
+    
+    #Get the video to play
+    feedback_counts = current_user.feedback_counts
+    cur_names = []
+    cur_counts = []
+    for vid_name in NEUTRAL:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        cur_counts = np.ones_like(cur_counts)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
+    vid_name = cur_names[vid_choice]
+    feedback_counts[vid_name] += 1
+    current_user.feedback_counts = feedback_counts
+    db.session.commit()
+
+    #Get video to play if correct
+    current_nonverbal = current_condition.nonverbal[round]
+    cur_names = []
+    cur_counts = []
+    for vid_name in FEEDBACK[current_nonverbal]['CORRECT']:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        cur_counts = np.ones_like(cur_counts)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
+    correct_vid_name = cur_names[vid_choice]
+
+    #Get video to play if incorrect
+    cur_names = []
+    cur_counts = []
+    for vid_name in FEEDBACK[current_nonverbal]['INCORRECT']:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        cur_counts = np.ones_like(cur_counts)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
+    incorrect_vid_name = cur_names[vid_choice]
+
+    if answers[num_completed_trials][0]:
+        correct_bin = 'bin0'
+    else:
+        correct_bin = 'bin1'
+
     return render_template("trials.html",
         title="Trials",
         form=form,
         num_bins=len(rule),
         card=cards[num_completed_trials],
-        correct_bin=answers[num_completed_trials],
+        correct_bin=correct_bin,
         num_completed_trials=num_completed_trials + 1,
         num_trials=len(cards),
         previous_cards=previous_cards,
         round=round,
-        start_time=start_time)
+        vid_name=vid_name,
+        correct_vid_name = correct_vid_name,
+        incorrect_vid_name = incorrect_vid_name)
 
 @app.route("/survey/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -362,6 +423,12 @@ def register():
         
         cond.users.append(user)
         cond.count += 1
+
+        feedback = {}
+        for vid in VIDEO_LIST:
+            feedback[vid] = 0
+        
+        user.feedback_counts = feedback
 
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
