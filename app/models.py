@@ -78,8 +78,13 @@ class Survey(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     round_num = db.Column(db.Integer)
-    robot_teaching = db.Column(db.Integer)
+    difficulty = db.Column(db.Integer)
     user_learning = db.Column(db.Integer)
+    animacy1 = db.Column(db.Integer)
+    animacy2 = db.Column(db.Integer)
+    animacy3 = db.Column(db.Integer)
+    intelligence1 = db.Column(db.Integer)
+    intelligence2 = db.Column(db.Integer)
    
 class Condition(db.Model):
     id = db.Column(db.Integer, primary_key=True)

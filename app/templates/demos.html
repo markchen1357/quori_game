@@ -1,5 +1,10 @@
 {% extends "base.html" %} {% block content %}
 <h1>Demonstrations - Round {{round+1}}</h1>
+
+<p><b>Instructions: </b>Here is a new rule! The robot is showing you where this card belongs.</p>
+
+<p>Try to find a pattern in which card belongs in which bin to figure out the rule! When you are ready to see the next demonstration, click the Next Demonstration button.</p>
+
 <div class="progress" style="height: 50px">
     <div class="progress-bar" role="progressbar" style="width: {{ num_completed_demos/num_demos*100 }}%;" aria-valuenow="{{num_completed_demos}}" aria-valuemin="0" aria-valuemax="{{num_demos}}">
         {{num_completed_demos}} out of {{num_demos}}</div>

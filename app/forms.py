@@ -5,14 +5,14 @@ from app.models import User
 
 
 class LoginForm(FlaskForm):
-    username = StringField("Username (MTurk ID)", validators=[DataRequired()])
+    username = StringField("Username (Prolific ID)", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Sign In")
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField("Username (MTurk ID)", validators=[DataRequired()])
+    username = StringField("Username (Prolific ID)", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     password2 = PasswordField("Repeat Password",
                               validators=[DataRequired(),
@@ -51,8 +51,17 @@ class DemoForm(FlaskForm):
     submit_demo = SubmitField("Next Demonstration")
 
 class SurveyForm(FlaskForm):
-    robot_teaching = RadioField("", choices=[(0, "Strongly Disagree"), (1, "Disagree"), (2, "Neutral"), (3, "Agree"), (4, "Strongly Agree")])
+    engagement = RadioField("", choices=[(0, "Strongly Disagree"), (1, "Disagree"), (2, "Neutral"), (3, "Agree"), (4, "Strongly Agree")])
+    difficulty = RadioField("", choices=[(0, "Strongly Disagree"), (1, "Disagree"), (2, "Neutral"), (3, "Agree"), (4, "Strongly Agree")])
     user_learning = RadioField("", choices=[(0, "Strongly Disagree"), (1, "Disagree"), (2, "Neutral"), (3, "Agree"), (4, "Strongly Agree")])
+
+    animacy1 = RadioField("", choices=[(0, "Stagnant"), (1, "Somewhat Stagnant"), (2, "Neutral"), (3, "Somewhat Lively"), (4, "Lively")])
+    animacy2 = RadioField("", choices=[(0, "Inert"), (1, "Somewhat Inert"), (2, "Neutral"), (3, "Somewhat Interactive"), (4, "Interactive")])
+    animacy3 = RadioField("", choices=[(0, "Apathetic"), (1, "Somewhat Apathetic"), (2, "Neutral"), (3, "Somewhat Responsive"), (4, "Responsive")])
+
+    intelligence1 = RadioField("", choices=[(0, "Incompetant"), (1, "Somewhat Incompetant"), (2, "Neutral"), (3, "Somewhat Competant"), (4, "Competant")])
+    intelligence2 = RadioField("", choices=[(0, "Unintelligent"), (1, "Somewhat Unintelligent"), (2, "Neutral"), (3, "Somewhat Intelligent"), (4, "Intelligent")])
+
     submit_survey = SubmitField("Submit")
 
    
