@@ -42,7 +42,7 @@ difficult_rule = [
         ]
 
 RULE_PROPS = {'EASY': {'rule': easy_rule, 'demo_cards': [10, 75, 33, 4], 'cards': [56, 36, 31, 16, 0, 76, 41, 71, 3, 61]},
-            'DIFFICULT': {'rule': difficult_rule, 'demo_cards': [38, 76, 1, 9], 'cards': [56, 22, 31, 16, 0, 76, 41, 71, 3, 23]}}
+            'DIFFICULT': {'rule': difficult_rule, 'demo_cards': [38, 76, 1, 9], 'cards': [56, 22, 31, 17, 0, 76, 41, 71, 3, 23]}}
 
 for rule_name, props in RULE_PROPS.items():
     demo_answer = []

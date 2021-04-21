@@ -48,7 +48,7 @@ class TrainingForm(FlaskForm):
     submit_training = SubmitField("Got it, I'm ready to begin!")
 
 class DemoForm(FlaskForm):
-    submit_demo = SubmitField("Next Demonstration")
+    submit_demo = SubmitField("Next Card")
 
 class SurveyForm(FlaskForm):
     engagement = RadioField("", choices=[(0, "Strongly Disagree"), (1, "Disagree"), (2, "Neutral"), (3, "Agree"), (4, "Strongly Agree")])

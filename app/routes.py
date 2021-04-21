@@ -183,10 +183,18 @@ def trials(round):
     current_condition = db.session.query(Condition).get(condition_id)
     rule_name = current_condition.difficulty[round]
     rule = RULE_PROPS[rule_name]['rule']
+    demo_cards = RULE_PROPS[rule_name]['demo_cards']
     cards = RULE_PROPS[rule_name]['cards']
     answers = RULE_PROPS[rule_name]['answers']
+    demo_answers = RULE_PROPS[rule_name]['demo_answers']
     
     previous_cards = [[], []]
+    for ii in range(len(demo_cards)):
+        if demo_answers[ii][0]:
+            previous_cards[0].append(demo_cards[ii])
+        if demo_answers[ii][1]:
+            previous_cards[1].append(demo_cards[ii])
+
     for ii in range(num_completed_trials):
         if answers[ii][0]:
             previous_cards[0].append(cards[ii])
