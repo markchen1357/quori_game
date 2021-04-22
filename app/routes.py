@@ -227,6 +227,17 @@ def trials(round):
                       rule_set=rule,
                       confidence=int(form.confidence.data))
         db.session.add(trial)
+
+        feedback_counts = current_user.feedback_counts
+        new_feedback_counts = {}
+        for new_vid_name in VIDEO_LIST:
+        if new_vid_name == feedback_chosen:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+        else:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
+
+        current_user.feedback_counts = new_feedback_counts
+        
         db.session.commit()
         return redirect(url_for('trials', round=round))
 
