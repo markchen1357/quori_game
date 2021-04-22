@@ -230,10 +230,10 @@ def trials(round):
         feedback_counts = current_user.feedback_counts
         new_feedback_counts = {}
         for new_vid_name in VIDEO_LIST:
-        if new_vid_name == feedback_chosen:
-            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
-        else:
-            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
+            if new_vid_name == feedback_chosen:
+                new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+            else:
+                new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
 
         current_user.feedback_counts = new_feedback_counts
         db.session.commit()
@@ -278,13 +278,24 @@ def trials(round):
     current_user.feedback_counts = new_feedback_counts
     db.session.commit()
 
+    if answers[num_completed_trials][0]:
+        correct_bin = 'bin0'
+    else:
+        correct_bin = 'bin1'
+
+
     #Choose correct video
     current_nonverbal = current_condition.nonverbal[round]
     cur_names = []
     cur_counts = []
-    for vid_name in FEEDBACK[current_nonverbal]['CORRECT']:
-        cur_names.append(vid_name)
-        cur_counts.append(feedback_counts[vid_name])
+    if correct_bin == 'bin0':
+        for vid_name in FEEDBACK[current_nonverbal]['CORRECT-LEFT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
+    else:
+        for vid_name in FEEDBACK[current_nonverbal]['CORRECT-RIGHT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
     cur_counts = np.array(cur_counts)
     if np.sum(cur_counts) == 0:
         cur_counts = np.ones_like(cur_counts)
@@ -294,19 +305,19 @@ def trials(round):
     #Choose incorrect video
     cur_names = []
     cur_counts = []
-    for vid_name in FEEDBACK[current_nonverbal]['INCORRECT']:
-        cur_names.append(vid_name)
-        cur_counts.append(feedback_counts[vid_name])
+    if correct_bin == 'bin0':
+        for vid_name in FEEDBACK[current_nonverbal]['INCORRECT-LEFT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
+    else:
+        for vid_name in FEEDBACK[current_nonverbal]['INCORRECT-RIGHT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
     cur_counts = np.array(cur_counts)
     if np.sum(cur_counts) == 0:
         cur_counts = np.ones_like(cur_counts)
     vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
     incorrect_vid_name = cur_names[vid_choice]
-
-    if answers[num_completed_trials][0]:
-        correct_bin = 'bin0'
-    else:
-        correct_bin = 'bin1'
 
     return render_template("trials.html",
         title="Trials",

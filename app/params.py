@@ -62,8 +62,8 @@ for rule_name, props in RULE_PROPS.items():
     RULE_PROPS[rule_name]['answers'] = answer
 
 FEEDBACK = {
-    'NEUTRAL': {'CORRECT': ['neutral1', 'neutral2'], 'INCORRECT': ['neutral1', 'neutral2']},
-    'NONVERBAL': {'CORRECT': ['happy1', 'happy2'], 'INCORRECT': ['sad1', 'sad2']}
+    'NEUTRAL': {'CORRECT-RIGHT': ['neutral1', 'neutral2'], 'INCORRECT-RIGHT': ['neutral1', 'neutral2'],'CORRECT-LEFT': ['neutral1', 'neutral2'], 'INCORRECT-LEFT': ['neutral1', 'neutral2']},
+    'NONVERBAL': {'CORRECT-LEFT': ['happy1', 'happy2'], 'INCORRECT-LEFT': ['sad1', 'sad2'], 'CORRECT-RIGHT': ['happy1', 'happy2'], 'INCORRECT-RIGHT': ['sad1', 'sad2']}
 }
 
 NEUTRAL = ['neutral1', 'neutral2']
