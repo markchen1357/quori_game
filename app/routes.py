@@ -151,11 +151,24 @@ def demos(round):
         cur_counts.append(feedback_counts[vid_name])
     cur_counts = np.array(cur_counts)
     if np.sum(cur_counts) == 0:
-        cur_counts = np.ones_like(cur_counts)
-    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
+        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
+    else:
+        p= 1 - cur_counts/np.sum(cur_counts)
+    for ii in range(len(p)):
+        if p[ii] < 0.05:
+            p[ii] = 0.05
+    p = p / np.sum(p)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
     vid_name = cur_names[vid_choice]
-    feedback_counts[vid_name] += 1
-    current_user.feedback_counts = feedback_counts
+    
+    new_feedback_counts = {}
+    for new_vid_name in VIDEO_LIST:
+        if new_vid_name == vid_name:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+        else:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
+
+    current_user.feedback_counts = new_feedback_counts
     db.session.commit()
 
     #Render the next demonstration
@@ -213,6 +226,16 @@ def trials(round):
                       feedback=feedback_chosen,
                       rule_set=rule)
         db.session.add(trial)
+
+        feedback_counts = current_user.feedback_counts
+        new_feedback_counts = {}
+        for new_vid_name in VIDEO_LIST:
+        if new_vid_name == feedback_chosen:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+        else:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
+
+        current_user.feedback_counts = new_feedback_counts
         db.session.commit()
         return redirect(url_for('trials', round=round))
 
@@ -226,7 +249,7 @@ def trials(round):
     if check_previous_demos < len(RULE_PROPS[check_rule_name]['demo_cards']):
         return redirect(url_for("consent"))
 
-    #Choose the video to play - neutral
+    #Pick the video to play
     feedback_counts = current_user.feedback_counts
     cur_names = []
     cur_counts = []
@@ -235,11 +258,24 @@ def trials(round):
         cur_counts.append(feedback_counts[vid_name])
     cur_counts = np.array(cur_counts)
     if np.sum(cur_counts) == 0:
-        cur_counts = np.ones_like(cur_counts)
-    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
+        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
+    else:
+        p= 1 - cur_counts/np.sum(cur_counts)
+    for ii in range(len(p)):
+        if p[ii] < 0.05:
+            p[ii] = 0.05
+    p = p / np.sum(p)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
     vid_name = cur_names[vid_choice]
-    feedback_counts[vid_name] += 1
-    current_user.feedback_counts = feedback_counts
+    
+    new_feedback_counts = {}
+    for new_vid_name in VIDEO_LIST:
+        if new_vid_name == vid_name:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+        else:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
+
+    current_user.feedback_counts = new_feedback_counts
     db.session.commit()
 
     #Choose correct video
