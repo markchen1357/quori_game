@@ -22,63 +22,62 @@ var drake = dragula(dragArr, {
     chosen_bin.textContent = el.parentElement.id;
     console.log("Moved to " + el.parentElement.id);
     var cur_confidence;
-    for (var ii = 0; ii < 5; ii++) {
-        cur_confidence = document.getElementById("confidence-" + ii);
-        cur_confidence.disabled = false;
+    if (el.parentElement.id == 'staging') {
+        for (var ii = 0; ii < 5; ii++) {
+            cur_confidence = document.getElementById("confidence-" + ii);
+            cur_confidence.disabled = true;
+        }
+    } else {
+        for (var ii = 0; ii < 5; ii++) {
+            cur_confidence = document.getElementById("confidence-" + ii);
+            cur_confidence.disabled = false;
+        }
     }
 });
 
 function showFeedback() {
-    // var submit_choice_btn = document.getElementById("submit_choice_btn");
     var chosen_bin = document.getElementById("current-chosen-bin").textContent;
+    var video_obj = document.getElementById("robot-video");
     var correct_bin = document.getElementById("correct_bin").textContent;
-    var bin0_correct = correct_bin.substring(correct_bin.lastIndexOf("[") + 1, correct_bin.lastIndexOf(",")) == 'True';
-    var bin1_correct = correct_bin.substring(correct_bin.lastIndexOf(",") + 2, correct_bin.lastIndexOf("]")) == 'True';
-
-    // var video_obj = document.getElementById("robot-video");
+    var correct_vid_name = document.getElementById("correct_vid_name").textContent;
+    var incorrect_vid_name = document.getElementById("incorrect_vid_name").textContent;
     console.log("Chose " + chosen_bin);
     if (chosen_bin == "staging" || chosen_bin == "") {
-        alert("Please choose one of the two bins!")
+        alert("Please choose one of the two bins!");
     } else {
-        // Get the selection
+        drake.destroy();
         var cur_confidence;
         var confidence;
         for (var ii = 0; ii < 5; ii++) {
             cur_confidence = document.getElementById("confidence-" + ii);
             if (cur_confidence.checked) {
                 confidence = cur_confidence.value;
+                // cur_confidence.disabled = true;
             }
         }
 
-        // submit_choice_btn.classList.add("invisible");
-        drake.destroy();
-        var chosen_bin_obj = document.getElementById("chosen_bin");
-        chosen_bin_obj.value = document.getElementById('current-chosen-bin').textContent;
+        var video_name;
+        if (correct_bin == chosen_bin) {
+            video_name = correct_vid_name; //Replace this when we have all the videos
+        } else {
+            video_name = incorrect_vid_name;
+        }
 
-        // if (chosen_bin == 'bin0') {
-        //     if (bin0_correct) {
-        //         alert("Correct!")
-        //     } else {
-        //         alert("Incorrect!")
-        //     }
-        // }
-        // if (chosen_bin == 'bin1') {
-        //     if (bin1_correct) {
-        //         alert("Correct!")
-        //     } else {
-        //         alert("Incorrect!")
-        //     }
-        // }
+        var feedback_chosen_obj = document.getElementById("feedback_chosen");
+        feedback_chosen_obj.value = video_name;
 
-        var submit_trial_btn = document.getElementById("submit_trial");
-        submit_trial_btn.click();
+        video_obj.innerHTML = '<source id="robot-video-source" src="' + '../static/robot/' + video_name + '.mp4' + '" type="video/mp4">';
+        video_obj.addEventListener('ended', videoEnded, false);
+        video_obj.loop = false
+        video_obj.load();
+        video_obj.play();
     }
 }
 
-// function videoEnded(e) {
-//     // What you want to do after the event
-//     var chosen_bin_obj = document.getElementById("chosen_bin");
-//     chosen_bin_obj.value = document.getElementById('current-chosen-bin').textContent;
-//     var submit_trial_btn = document.getElementById("submit_trial");
-//     submit_trial_btn.click();
-// }
+function videoEnded(e) {
+    // What you want to do after the event
+    var chosen_bin_obj = document.getElementById("chosen_bin");
+    chosen_bin_obj.value = document.getElementById('current-chosen-bin').textContent;
+    var submit_trial_btn = document.getElementById("submit_trial");
+    submit_trial_btn.click();
+}

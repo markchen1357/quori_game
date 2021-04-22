@@ -1,11 +1,14 @@
 {% extends "base.html" %} {% block content %}
 <h1>Home</h1>
+
+<p>Welcome to our robotics research user study where we compare different robot behaviors.</p>
+
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
-        {% if completed[num_rounds-1][2] %}
+        {% if completed %}
         <h3>Study Completed</h3>
         <hr class="my-4">
-        <p class="lead">Please enter the following code into MTurk and submit the HIIT</p>
+        <p class="lead">Please enter the following code into Prolific to receive compensation.</p>
         <p class="lead">
             {{code}}
         </p>

@@ -6,7 +6,8 @@ from app.forms import LoginForm, RegistrationForm, TrialForm, DemoForm, ConsentF
 from app.models import User, Trial, Demo, Survey, Condition
 from app.params import *
 from utils import rules_to_str, str_to_rules
-
+import numpy as np
+from datetime import datetime
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -44,11 +45,18 @@ def index():
         else:
             completed[round].append(True)
 
+    #Check whether final survey is done
+    condition_id = current_user.condition_id
+    current_condition = db.session.query(Condition).get(condition_id)
+    num_rounds = len(current_condition.difficulty)
+    num_completed_surveys = db.session.query(Survey).filter_by(user_id=current_user.id, round_num=num_rounds-1).count()
+    if num_completed_surveys < 1:
+        completed = False
+    else:
+        completed = True
+
     return render_template("index.html",
                            title="Home Page",
-                           consent=current_user.consent,
-                           training=current_user.training,
-                           num_rounds=num_rounds,
                            completed=completed,
                            code=current_user.code)
 
@@ -80,10 +88,10 @@ def training():
         db.session.commit()
         redirect(url_for("demos", round=0))
     if current_user.training:
-        flash("Training already completed!")
+        # flash("Training already completed!")
         return redirect(url_for("demos", round=0))
     elif not current_user.consent:
-        flash("Consent not yet completed!")
+        # flash("Consent not yet completed!")
         return redirect(url_for("consent"))
     else:
         return render_template("training.html", title="Training", form=form)
@@ -101,7 +109,7 @@ def demos(round):
     rule = RULE_PROPS[rule_name]['rule']
     demo_cards = RULE_PROPS[rule_name]['demo_cards']
     demo_answers = RULE_PROPS[rule_name]['demo_answers']
-
+    
     previous_cards = [[], []]
     for ii in range(num_completed_demos):
         if demo_answers[ii][0]:
@@ -120,38 +128,48 @@ def demos(round):
         return redirect(url_for('demos', round=round))
 
     if num_completed_demos == len(demo_cards):
-        flash("You have seen all the demonstrations in this round!")
         return redirect(url_for("trials",round=round))
+    
+    #Check if previous thing is done
 
-    if not current_user.consent:
-        flash("You must complete the modules in order!")
+    #If first round, training must be done
+    if (round == 0) and (not current_user.training):
         return redirect(url_for("consent"))
-    if not current_user.training:
-        flash("You must complete the modules in order!")
-        return redirect(url_for("training"))
-
-    #All demos, trials, and surveys from previous rounds completed
+    
+    #If not first round, previous survey must be done
     if round > 0:
-        for check_round in range(round):
-            check_rule_name = current_condition.difficulty[check_round]
+        check_previous_surveys = db.session.query(Survey).filter_by(user_id=current_user.id, round_num=round-1).count()
+        if check_previous_surveys < 1:
+            return redirect(url_for("consent"))
 
-            #Redirect to demos
-            check_previous_demos = db.session.query(Demo).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_demos < len(RULE_PROPS[check_rule_name]['demo_cards']):
-                flash("You must complete the modules in order!")
-                return redirect(url_for("demos", round=check_round))
-            
-            #Redirect to trials
-            check_previous_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_trials < len(RULE_PROPS[check_rule_name]['cards']):
-                flash("You must complete the modules in order!")
-                return redirect(url_for("trials", round=check_round))
-            
-            #Redirect to survey
-            check_previous_surveys = db.session.query(Survey).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_surveys < 1:
-                flash("You must complete the modules in order!")
-                return redirect(url_for("survey", round=check_round))
+    #Pick the video to play
+    feedback_counts = current_user.feedback_counts
+    cur_names = []
+    cur_counts = []
+    for vid_name in NEUTRAL:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
+    else:
+        p= 1 - cur_counts/np.sum(cur_counts)
+    for ii in range(len(p)):
+        if p[ii] < 0.05:
+            p[ii] = 0.05
+    p = p / np.sum(p)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
+    vid_name = cur_names[vid_choice]
+    
+    new_feedback_counts = {}
+    for new_vid_name in VIDEO_LIST:
+        if new_vid_name == vid_name:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+        else:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
+
+    current_user.feedback_counts = new_feedback_counts
+    db.session.commit()
 
     #Render the next demonstration
     return render_template("demos.html",
@@ -163,12 +181,14 @@ def demos(round):
         num_completed_demos=num_completed_demos + 1,
         num_demos=len(demo_cards),
         previous_cards=previous_cards,
-        round=round)
+        round=round,
+        vid_name=vid_name)
 
 @app.route("/trials/<int:round>", methods=["GET", "POST"])
 @login_required
 def trials(round):
-    form = TrialForm()
+    start_time = datetime.now().utcnow().isoformat()
+    form = TrialForm(start_time=start_time)
     
     num_completed_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=round).count()
     
@@ -176,10 +196,18 @@ def trials(round):
     current_condition = db.session.query(Condition).get(condition_id)
     rule_name = current_condition.difficulty[round]
     rule = RULE_PROPS[rule_name]['rule']
+    demo_cards = RULE_PROPS[rule_name]['demo_cards']
     cards = RULE_PROPS[rule_name]['cards']
     answers = RULE_PROPS[rule_name]['answers']
+    demo_answers = RULE_PROPS[rule_name]['demo_answers']
     
     previous_cards = [[], []]
+    for ii in range(len(demo_cards)):
+        if demo_answers[ii][0]:
+            previous_cards[0].append(demo_cards[ii])
+        if demo_answers[ii][1]:
+            previous_cards[1].append(demo_cards[ii])
+
     for ii in range(num_completed_trials):
         if answers[ii][0]:
             previous_cards[0].append(cards[ii])
@@ -188,12 +216,14 @@ def trials(round):
 
     if form.validate_on_submit():
         chosen_bin = int(form.chosen_bin.data[3])
+        feedback_chosen = form.feedback_chosen.data
         trial = Trial(author=current_user,
                       trial_num=num_completed_trials + 1,
                       card_num=cards[num_completed_trials],
                       round_num=round,
                       correct_bin=answers[num_completed_trials],
                       chosen_bin=chosen_bin,
+                      feedback=feedback_chosen,
                       rule_set=rule,
                       confidence=int(form.confidence.data))
         db.session.add(trial)
@@ -201,48 +231,100 @@ def trials(round):
         return redirect(url_for('trials', round=round))
 
     if num_completed_trials == len(cards):
-        flash("You have seen all the trials in this round!")
+        # flash("You have seen all the trials in this round!")
         return redirect(url_for("survey", round=round))
     
-    if not current_user.consent:
-        flash("You must complete the modules in order!")
+    #Check if previous thing is done, previous demos must be done
+    check_rule_name = current_condition.difficulty[round]
+    check_previous_demos = db.session.query(Demo).filter_by(user_id=current_user.id, round_num=round).count()
+    if check_previous_demos < len(RULE_PROPS[check_rule_name]['demo_cards']):
         return redirect(url_for("consent"))
-    if not current_user.training:
-        flash("You must complete the modules in order!")
-        return redirect(url_for("training"))
 
-    if round > 0:
-        for check_round in range(round):
-            check_rule_name = current_condition.difficulty[check_round]
+    #Choose the video to play - neutral
+    feedback_counts = current_user.feedback_counts
+    cur_names = []
+    cur_counts = []
+    for vid_name in NEUTRAL:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
+    else:
+        p= 1 - cur_counts/np.sum(cur_counts)
+    for ii in range(len(p)):
+        if p[ii] < 0.05:
+            p[ii] = 0.05
+    p = p / np.sum(p)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
+    vid_name = cur_names[vid_choice]
+    
+    new_feedback_counts = {}
+    for new_vid_name in VIDEO_LIST:
+        if new_vid_name == vid_name:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name] + 1
+        else:
+            new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
 
-            #Redirect to demos
-            check_previous_demos = db.session.query(Demo).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_demos < len(RULE_PROPS[check_rule_name]['demo_cards']):
-                flash("You must complete the modules in order!")
-                return redirect(url_for("demos", round=check_round))
-            
-            #Redirect to trials
-            check_previous_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_trials < len(RULE_PROPS[check_rule_name]['cards']):
-                flash("You must complete the modules in order!")
-                return redirect(url_for("trials", round=check_round))
-            
-            #Redirect to survey
-            check_previous_surveys = db.session.query(Survey).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_surveys < 1:
-                flash("You must complete the modules in order!")
-                return redirect(url_for("survey", round=check_round))
-        
+    current_user.feedback_counts = new_feedback_counts
+    db.session.commit()
+
+    current_nonverbal = current_condition.nonverbal[round]
+    
+    #Choose correct video
+    cur_names = []
+    cur_counts = []
+    for vid_name in FEEDBACK[current_nonverbal]['CORRECT']:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
+    else:
+        p= 1 - cur_counts/np.sum(cur_counts)
+    for ii in range(len(p)):
+        if p[ii] < 0.05:
+            p[ii] = 0.05
+    p = p / np.sum(p)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
+    correct_vid_name = cur_names[vid_choice]
+
+    #Choose incorrect video
+    cur_names = []
+    cur_counts = []
+    for vid_name in FEEDBACK[current_nonverbal]['INCORRECT']:
+        cur_names.append(vid_name)
+        cur_counts.append(feedback_counts[vid_name])
+    cur_counts = np.array(cur_counts)
+    if np.sum(cur_counts) == 0:
+        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
+    else:
+        p = 1 - cur_counts/np.sum(cur_counts)
+    for ii in range(len(p)):
+        if p[ii] < 0.05:
+            p[ii] = 0.05
+    p = p / np.sum(p)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
+    incorrect_vid_name = cur_names[vid_choice]
+
+    if answers[num_completed_trials][0]:
+        correct_bin = 'bin0'
+    else:
+        correct_bin = 'bin1'
+
     return render_template("trials.html",
         title="Trials",
         form=form,
         num_bins=len(rule),
         card=cards[num_completed_trials],
-        correct_bin=answers[num_completed_trials],
+        correct_bin=correct_bin,
         num_completed_trials=num_completed_trials + 1,
         num_trials=len(cards),
         previous_cards=previous_cards,
-        round=round)
+        round=round,
+        vid_name=vid_name,
+        correct_vid_name = correct_vid_name,
+        incorrect_vid_name = incorrect_vid_name)
 
 @app.route("/survey/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -255,8 +337,13 @@ def survey(round):
     if form.validate_on_submit():
         survey = Survey(author=current_user,
                         round_num=round,
-                        robot_teaching = form.robot_teaching.data,
-                        user_learning = form.user_learning.data)
+                        difficulty = form.difficulty.data,
+                        user_learning = form.user_learning.data,
+                        animacy1 = form.animacy1.data,
+                        animacy2 = form.animacy2.data,
+                        animacy3 = form.animacy3.data,
+                        intelligence1 = form.intelligence1.data,
+                        intelligence2 = form.intelligence2.data)
         db.session.add(survey)
         db.session.commit()
 
@@ -273,48 +360,11 @@ def survey(round):
         else:
             return redirect(url_for("index"))
 
-    #Check if all previous things have been completed
-    if not current_user.consent:
-        flash("You must complete the modules in order!")
-        return redirect(url_for("consent"))
-    if not current_user.training:
-        flash("You must complete the modules in order!")
-        return redirect(url_for("training"))
-
-    if round > 0:
-        for check_round in range(round):
-            check_rule_name = current_condition.difficulty[check_round]
-
-            #Redirect to demos
-            check_previous_demos = db.session.query(Demo).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_demos < len(RULE_PROPS[check_rule_name]['demo_cards']):
-                flash("You must complete the modules in order!")
-                return redirect(url_for("demos", round=check_round))
-            
-            #Redirect to trials
-            check_previous_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_trials < len(RULE_PROPS[check_rule_name]['cards']):
-                flash("You must complete the modules in order!")
-                return redirect(url_for("trials", round=check_round))
-            
-            #Redirect to survey
-            check_previous_surveys = db.session.query(Survey).filter_by(user_id=current_user.id, round_num=check_round).count()
-            if check_previous_surveys < 1:
-                flash("You must complete the modules in order!")
-                return redirect(url_for("survey", round=check_round))
-
-    check_round = round
-    check_rule_name = current_condition.difficulty[check_round]
-
-    check_previous_demos = db.session.query(Demo).filter_by(user_id=current_user.id, round_num=check_round).count()
-    if check_previous_demos < len(RULE_PROPS[check_rule_name]['demo_cards']):
-        flash("You must complete the modules in order!")
-        return redirect(url_for("demos", round=check_round))
-    check_previous_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=check_round).count()
+    #Check if previous thing is done, previous trials must be done
+    check_rule_name = current_condition.difficulty[round]
+    check_previous_trials = db.session.query(Trial).filter_by(user_id=current_user.id, round_num=round).count()
     if check_previous_trials < len(RULE_PROPS[check_rule_name]['cards']):
-        flash("You must complete the modules in order!")
-        return redirect(url_for("trials", round=check_round))
-
+        return redirect(url_for("consent"))
     
     return render_template("survey.html", methods=["GET", "POST"], form=form, round=round)
 
@@ -355,6 +405,12 @@ def register():
         
         cond.users.append(user)
         cond.count += 1
+
+        feedback = {}
+        for vid in VIDEO_LIST:
+            feedback[vid] = 0
+        
+        user.feedback_counts = feedback
 
         db.session.commit()
         flash("Congratulations, you are now a registered user!")

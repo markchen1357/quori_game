@@ -13,6 +13,7 @@ pip install flask-sqlalchemy
 pip install flask-migrate
 pip install numpy scipy matplotlib pandas pingouin
 ```
+- Comment out lines from `__init__.py`
 - Create the database using
 ```
 flask db init
@@ -27,6 +28,7 @@ flask db upgrade
 flask db migrate -m "survey table"
 flask db upgrade
 ```
+- Uncomment the `__init__.py` lines
 - Run the app with `python -m flask run`
 
 ## Useful Links

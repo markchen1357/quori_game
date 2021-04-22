@@ -1,13 +1,12 @@
 def evaluate_card(rule, card):
-    res = True
     for c in rule:
+        res = True
         for prop_num in range(4):
             if not CARD_PROPERTIES[card][prop_num] in c[prop_num]:
                 res = False
         if res:
             return res
     return False
-
 
 DEBUG_MODE = False
 
@@ -18,9 +17,7 @@ for color in ['red', 'green', 'purple']:
             for number in ['one', 'two', 'three']:
                 CARD_PROPERTIES.append((color, shading, shape, number))
 
-# CONDITIONS = [(('EASY', 'NONVERBAL'), ('DIFFICULT', 'NONVERBAL')), (('EASY', 'NEUTRAL'), ('DIFFICULT', 'NEUTRAL')), (('DIFFICULT', 'NEUTRAL'), ('EASY', 'NONVERBAL')), (('DIFFICULT', 'NEUTRAL'), ('EASY', 'NEUTRAL'))]
 CONDITIONS = [(('EASY', 'NEUTRAL'), ('DIFFICULT', 'NEUTRAL')), (('DIFFICULT', 'NEUTRAL'), ('EASY', 'NEUTRAL'))]
-
 
 easy_rule = [
             [
@@ -31,8 +28,18 @@ easy_rule = [
             ]
         ]
 
-RULE_PROPS = {'EASY': {'rule': easy_rule, 'demo_cards': [10, 33, 75, 57], 'cards': [7, 27, 60, 79, 32, 10, 45, 15, 3, 55]},
-            'DIFFICULT': {'rule': easy_rule, 'demo_cards': [10, 33, 75, 57], 'cards': [7, 27, 60, 79, 32, 10, 45, 15, 3, 55]}}
+difficult_rule = [
+            [
+                [['green', 'purple'], ['open', 'striped', 'solid'], ['oval', 'diamond', 'squiggle'], ['one', 'two', 'three']],
+                [['red'], ['open', 'striped', 'solid'], ['oval', 'diamond', 'squiggle'], ['one']]
+            ],
+            [
+                [['red'], ['open', 'striped', 'solid'], ['oval', 'diamond', 'squiggle'], ['two', 'three']]
+            ]
+        ]
+
+RULE_PROPS = {'EASY': {'rule': easy_rule, 'demo_cards': [10, 75, 33, 4], 'cards': [56, 36, 31, 16, 0, 76, 41, 71, 3, 61]},
+            'DIFFICULT': {'rule': difficult_rule, 'demo_cards': [38, 76, 1, 9], 'cards': [56, 22, 31, 17, 0, 76, 41, 71, 3, 23]}}
 
 for rule_name, props in RULE_PROPS.items():
     demo_answer = []
@@ -50,3 +57,11 @@ for rule_name, props in RULE_PROPS.items():
             bin_res[cur_bin_num] = evaluate_card(cur_bin_rule, card)
         answer.append(bin_res)
     RULE_PROPS[rule_name]['answers'] = answer
+
+FEEDBACK = {
+    'NEUTRAL': {'CORRECT': ['neutral1', 'neutral2'], 'INCORRECT': ['neutral1', 'neutral2']}
+}
+
+NEUTRAL = ['neutral1', 'neutral2']
+
+VIDEO_LIST = ['neutral1', 'neutral2']

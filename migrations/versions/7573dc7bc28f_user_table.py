@@ -1,8 +1,8 @@
 """user table
 
-Revision ID: 430d246f8558
+Revision ID: 7573dc7bc28f
 Revises: 
-Create Date: 2021-02-18 10:11:56.587389
+Create Date: 2021-04-22 13:33:02.475463
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '430d246f8558'
+revision = '7573dc7bc28f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,6 +32,7 @@ def upgrade():
     sa.Column('condition_id', sa.Integer(), nullable=True),
     sa.Column('code', sa.String(length=20), nullable=True),
     sa.Column('consent', sa.Integer(), nullable=True),
+    sa.Column('feedback_counts', sa.PickleType(), nullable=True),
     sa.Column('training', sa.Integer(), nullable=True),
     sa.Column('age', sa.Integer(), nullable=True),
     sa.Column('gender', sa.Integer(), nullable=True),
@@ -60,8 +61,13 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('round_num', sa.Integer(), nullable=True),
-    sa.Column('robot_teaching', sa.Integer(), nullable=True),
+    sa.Column('difficulty', sa.Integer(), nullable=True),
     sa.Column('user_learning', sa.Integer(), nullable=True),
+    sa.Column('animacy1', sa.Integer(), nullable=True),
+    sa.Column('animacy2', sa.Integer(), nullable=True),
+    sa.Column('animacy3', sa.Integer(), nullable=True),
+    sa.Column('intelligence1', sa.Integer(), nullable=True),
+    sa.Column('intelligence2', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -77,6 +83,7 @@ def upgrade():
     sa.Column('chosen_bin', sa.Integer(), nullable=True),
     sa.Column('rule_set', sa.PickleType(), nullable=True),
     sa.Column('confidence', sa.Integer(), nullable=True),
+    sa.Column('feedback', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
