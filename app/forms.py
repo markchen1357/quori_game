@@ -42,7 +42,7 @@ class ConsentForm(FlaskForm):
     education = RadioField("", choices=[(0, "Less than high school degree"), (1, "High school graduate (high school diploma or equivalent including GED)"), (2, "Some college but no degree"), (3, "Associate degree in college (2-year)"), (4, "Bachelor’s degree in college (4-year)"), (5, "Master’s degree"), (5, "Doctoral degree"), (5, "Professional degree (JD, MD)")])
     ethnicity = RadioField("", choices=[(0, "White"), (1, "Black or African American"), (2, "American Indian or Alaska Native"), (3, "Asian"), (4, "Native Hawaiian or Pacific Islander"), (5, "Other")])
     robot = RadioField("", choices=[(0, "Not at all"), (1, "Slightly"), (2, "Moderately"), (3, "Very"), (4, "Extremely")])
-    submit_consent = SubmitField("I have read and understood the information above and want to participate in this research.")
+    submit_consent = SubmitField("Ready to begin!")
 
 class TrainingForm(FlaskForm):
     submit_training = SubmitField("Got it, I'm ready to begin!")
