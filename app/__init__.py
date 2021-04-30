@@ -20,7 +20,7 @@ if not os.path.exists('./features'):
     os.mkdir('features') 
 
 from app import routes, models
-"""
+
 from app.params import CONDITIONS
 rows = db.session.query(models.Condition).count()
 if rows == 0:
@@ -35,5 +35,5 @@ db.session.commit()
 
 if __name__ == 'main':
     socketio.run(app)
-"""
+
 
