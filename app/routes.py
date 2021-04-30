@@ -33,20 +33,32 @@ def handle_connect():
 def image(json, methods = ['GET', 'POST']):
     print('image received from client {}'.format(request.sid))
     i = json['image']  # get the image
-  
-    pic_id = time.strftime("%Y%m%d-%H%M%S") #unique id
+    userid = 'null-{}'.format(time.strftime("%Y-%m-%d_%H:%M:%S"))
+    if 'userid' in json:
+        userid = json['userid']
+    if not os.path.exists('./users/{}'.format(userid)):
+        os.mkdir('users/{}'.format(userid))
+        os.mkdir('users/{}/images'.format(userid))
+        os.mkdir('users/{}/features'.format(userid))
+        with open('users/{}/features.csv'.format(userid), 'w') as features:
+            with open('./app/static/template.csv', 'r') as f:
+                headers = f.readlines()
+                features.write(headers[0])
+    
+    dt_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    pic_id = 'id-{}_{}'.format(userid, dt_string)
     with Image(blob = i) as img:
-        img.save(filename = './images/{}.jpg'.format(pic_id))
+        img.save(filename = './users/{}/images/{}.jpg'.format(userid, pic_id))
 
     # extract features
-    os.system('{}FaceLandmarkImg -f \"./images/{}.jpg\"'.format(PATH_TO_EXTRACTION, pic_id))
-    os.rename('./processed', './features/{}'.format(pic_id))
+    os.system('{}FaceLandmarkImg -f ./users/{}/images/{}.jpg -out_dir ./users/{}/features/{}'.format(
+        PATH_TO_EXTRACTION, userid, pic_id, userid, pic_id))
     
-    with open('./features/{}/{}.csv'.format(pic_id, pic_id)) as f:
-        data = f.readlines()
-        dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    with open('./users/{}/features/{}/{}.csv'.format(userid, pic_id, pic_id), 'r') as feature:
+        data = feature.readlines()
         write_data = '{}, {}'.format(dt_string, data[1])
-        image_data.write(write_data)
+        with open('./users/{}/features.csv'.format(userid), 'a') as features:
+            features.write(write_data)
     return Response("%s saved" % pic_id)
 
 @app.route("/", methods=["GET", "POST"])
@@ -122,6 +134,8 @@ def consent():
 @app.route("/training", methods=["GET", "POST"])
 @login_required
 def training():
+    print(current_user.is_authenticated)
+    print(current_user.id)
     form = TrainingForm()
     if form.validate_on_submit():
         current_user.training = 1
@@ -134,7 +148,8 @@ def training():
         # flash("Consent not yet completed!")
         return redirect(url_for("consent"))
     else:
-        return render_template("training.html", title="Training", form=form, consent=current_user.consent)
+        return render_template("training.html", title="Training", form=form, 
+        consent=current_user.consent, userid = current_user.id)
 
 @app.route("/demos/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -165,10 +180,10 @@ def demos(round):
                     rule_set=rule)
         db.session.add(demo)
         db.session.commit()
-        return redirect(url_for('demos', round=round, consent=current_user.consent))
+        return redirect(url_for('demos', round=round, consent=current_user.consent, userid = current_user.id))
 
     if num_completed_demos == len(demo_cards):
-        return redirect(url_for("trials",round=round, consent=current_user.consent))
+        return redirect(url_for("trials",round=round, consent=current_user.consent, userid = current_user.id))
     
     #Check if previous thing is done
 
@@ -223,7 +238,8 @@ def demos(round):
         previous_cards=previous_cards,
         round=round,
         vid_name=vid_name,
-        consent=current_user.consent)
+        consent=current_user.consent,
+        userid = current_user.id)
 
 @app.route("/trials/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -375,7 +391,8 @@ def trials(round):
         vid_name=neutral_vid_name,
         correct_vid_name = correct_vid_name,
         incorrect_vid_name = incorrect_vid_name,
-        consent=current_user.consent)
+        consent=current_user.consent,
+        userid = current_user.id)
 
 @app.route("/survey/<int:round>", methods=["GET", "POST"])
 @login_required

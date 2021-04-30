@@ -13,11 +13,10 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = "login"
-if not os.path.exists('./images'):
-    os.mkdir('images')
 
-if not os.path.exists('./features'):
-    os.mkdir('features') 
+if not os.path.exists('./users'):
+    os.mkdir('users')
+
 
 from app import routes, models
 

@@ -6,6 +6,4 @@ env/*
 result/*
 migrations/*
 app.db
-image_data.csv
-images/
-features/
+users/

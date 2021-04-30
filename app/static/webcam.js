@@ -1,6 +1,8 @@
 var socket = io.connect('http://localhost:5000');
 let v = document.getElementById('myVideo');
 var userConsent = document.getElementById('consent')
+var userID = document.getElementById('userid')
+var recordButton = document.getElementById('recordButton')
 
 //create a canvas to grab an image for upload
 let imageCanvas = document.createElement('canvas');
@@ -25,7 +27,11 @@ function postFile(file) {
 function postFile2(file) {
     //let formdata = new FormData();
     //formdata.append('image', file);
-    socket.emit('send image', {'image': file});
+    var sendData = {'image': file}
+    if (userID != null) {
+        sendData = {'image': file, 'userid': userID.getAttribute('data')}  
+    }
+    socket.emit('send image', sendData);
     console.log('sent image');
     /*
     let xhr = new XMLHttpRequest();
@@ -74,19 +80,22 @@ v.onclick = function() {
 };
 
 function record() {
-    window.setInterval(function() {
-    console.log('interval');
-    sendImagefromCanvas();
-    }, 10000);
+    console.log('connected')
+    
+    if (userConsent != null && userConsent.getAttribute('data') == '1') {
+        console.log('start recording');
+        recordButton.style.display = 'block';
+        window.setInterval(function() {
+            console.log('interval');
+            sendImagefromCanvas();
+            }, 10000);
+        };
 }
+    
 
-//record();
-//socket.on('connected')
+socket.on('connect', record);
 
-if (userConsent != null && userConsent.getAttribute('data') == '1') {
-    console.log('start recording');
-    record();
-}
+
 
 
 
