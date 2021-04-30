@@ -1,5 +1,6 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, Response
 from flask_login import login_user, logout_user, current_user, login_required
+from flask_socketio import SocketIO, emit
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, TrialForm, DemoForm, ConsentForm, TrainingForm, SurveyForm
@@ -8,6 +9,45 @@ from app.params import *
 from utils import rules_to_str, str_to_rules
 import numpy as np
 from datetime import datetime
+import time
+from wand.image import Image
+import os
+
+PATH_TO_TEST_IMAGES_DIR = './images'
+PATH_TO_EXTRACTION = '/mnt/d/users/chenm/OpenFace/build/bin/'
+socketio = SocketIO(app, cors_allowed_origins = '*')
+image_data = open('image_data.csv', 'w')
+with open('./app/static/template.csv', 'r') as f:
+    headers = f.readlines()
+    image_data.write(headers[0])
+    
+
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client {} connected'.format(request.sid))
+    #clients.append(request.sid)
+    socketio.emit('connected')
+   
+@socketio.on('send image')
+def image(json, methods = ['GET', 'POST']):
+    print('image received from client {}'.format(request.sid))
+    i = json['image']  # get the image
+  
+    pic_id = time.strftime("%Y%m%d-%H%M%S") #unique id
+    with Image(blob = i) as img:
+        img.save(filename = './images/{}.jpg'.format(pic_id))
+
+    # extract features
+    os.system('{}FaceLandmarkImg -f \"./images/{}.jpg\"'.format(PATH_TO_EXTRACTION, pic_id))
+    os.rename('./processed', './features/{}'.format(pic_id))
+    
+    with open('./features/{}/{}.csv'.format(pic_id, pic_id)) as f:
+        data = f.readlines()
+        dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        write_data = '{}, {}'.format(dt_string, data[1])
+        image_data.write(write_data)
+    return Response("%s saved" % pic_id)
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -94,7 +134,7 @@ def training():
         # flash("Consent not yet completed!")
         return redirect(url_for("consent"))
     else:
-        return render_template("training.html", title="Training", form=form)
+        return render_template("training.html", title="Training", form=form, consent=current_user.consent)
 
 @app.route("/demos/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -125,10 +165,10 @@ def demos(round):
                     rule_set=rule)
         db.session.add(demo)
         db.session.commit()
-        return redirect(url_for('demos', round=round))
+        return redirect(url_for('demos', round=round, consent=current_user.consent))
 
     if num_completed_demos == len(demo_cards):
-        return redirect(url_for("trials",round=round))
+        return redirect(url_for("trials",round=round, consent=current_user.consent))
     
     #Check if previous thing is done
 
@@ -182,7 +222,8 @@ def demos(round):
         num_demos=len(demo_cards),
         previous_cards=previous_cards,
         round=round,
-        vid_name=vid_name)
+        vid_name=vid_name,
+        consent=current_user.consent)
 
 @app.route("/trials/<int:round>", methods=["GET", "POST"])
 @login_required
@@ -237,14 +278,14 @@ def trials(round):
             else:
                 new_feedback_counts[new_vid_name] = feedback_counts[new_vid_name]
 
-        current_user.feedback_counts = new_feedback_counts
+            current_user.feedback_counts = new_feedback_counts
         
         db.session.commit()
-        return redirect(url_for('trials', round=round))
+        return redirect(url_for('trials', round=round, consent=current_user.consent))
 
     if num_completed_trials == len(cards):
         # flash("You have seen all the trials in this round!")
-        return redirect(url_for("survey", round=round))
+        return redirect(url_for("survey", round=round, consent=current_user.consent))
     
     #Check if previous thing is done, previous demos must be done
     check_rule_name = current_condition.difficulty[round]
@@ -333,7 +374,8 @@ def trials(round):
         round=round,
         vid_name=neutral_vid_name,
         correct_vid_name = correct_vid_name,
-        incorrect_vid_name = incorrect_vid_name)
+        incorrect_vid_name = incorrect_vid_name,
+        consent=current_user.consent)
 
 @app.route("/survey/<int:round>", methods=["GET", "POST"])
 @login_required
