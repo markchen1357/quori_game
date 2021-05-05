@@ -5,13 +5,13 @@
 - Do the set-up instructions from https://code.visualstudio.com/docs/python/tutorial-flask starting with the Prerequisites and Create Project Environment sections
 - Select Interpretor to the `venv` and `Ctrl + Shift +` ` to open console within the env
 ```
-pip install flask
-pip install email-validator
-pip install flask-wtf
-pip install flask-login
-pip install flask-sqlalchemy
-pip install flask-migrate
-pip install numpy scipy matplotlib pandas pingouin
+python -m pip install flask
+python -m pip install email-validator
+python -m pip install flask-wtf
+python -m pip install flask-login
+python -m pip install flask-sqlalchemy
+python -m pip install flask-migrate
+python -m pip install numpy scipy matplotlib pandas pingouin
 ```
 - Comment out lines from `__init__.py`
 - Create the database using

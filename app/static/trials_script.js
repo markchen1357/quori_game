@@ -55,7 +55,7 @@ function showFeedback() {
                 // cur_confidence.disabled = true;
             }
         }
-
+        document.getElementById("confidence-div").classList.add("invisible");
         var video_name;
         if (correct_bin == chosen_bin) {
             video_name = correct_vid_name; //Replace this when we have all the videos

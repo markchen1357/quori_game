@@ -72,12 +72,14 @@
             <!-- {% for error in form.chosen_bin.errors %}
             <div class="alert alert-danger" role="alert">{{ error }}</div>
             {% endfor %} -->
-            <h4>How confident are you in your choice?</h4>
-            {% for subfield in form.confidence %}
-            <div class="form-check form-check-inline">
-                {{ subfield(class="form-check-input", onclick="showFeedback()", disabled=true) }} {{ subfield.label(class="form-check-label") }}
+            <div id="confidence-div">
+                <h4>How confident are you in your choice?</h4>
+                {% for subfield in form.confidence %}
+                <div class="form-check form-check-inline">
+                    {{ subfield(class="form-check-input", onclick="showFeedback()", disabled=true) }} {{ subfield.label(class="form-check-label") }}
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
             <span class="invisible">{{ form.submit_trial(class="btn btn-dark btn-lg w-100") }}</span>
             <span class="invisible">{{ form.chosen_bin(cols=32, rows=4) }} </span>
             <span class="invisible">{{ form.feedback_chosen(cols=32, rows=4) }} </span>
