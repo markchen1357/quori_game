@@ -6,21 +6,22 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm, TrialForm, DemoForm, ConsentForm, TrainingForm, SurveyForm
 from app.models import User, Trial, Demo, Survey, Condition
 from app.params import *
+from app.user import init_user
 from utils import rules_to_str, str_to_rules
 import numpy as np
 from datetime import datetime
 import time
 from wand.image import Image
 import os
+from random import randint
+import pandas as pd
 
 PATH_TO_TEST_IMAGES_DIR = './images'
 PATH_TO_EXTRACTION = '/mnt/d/users/chenm/OpenFace/build/bin/'
+DEFAULT_USER = 'unk-{}'.format(randint(1,9999999))
+while(os.path.exists('./users/{}'.format(DEFAULT_USER))):
+    DEFAULT_USER = 'unk-{}'.format(randint(1,9999999))
 socketio = SocketIO(app, cors_allowed_origins = '*')
-image_data = open('image_data.csv', 'w')
-with open('./app/static/template.csv', 'r') as f:
-    headers = f.readlines()
-    image_data.write(headers[0])
-    
 
 
 @socketio.on('connect')
@@ -33,17 +34,11 @@ def handle_connect():
 def image(json, methods = ['GET', 'POST']):
     print('image received from client {}'.format(request.sid))
     i = json['image']  # get the image
-    userid = 'null-{}'.format(time.strftime("%Y-%m-%d_%H:%M:%S"))
+    userid = DEFAULT_USER
     if 'userid' in json:
         userid = json['userid']
     if not os.path.exists('./users/{}'.format(userid)):
-        os.mkdir('users/{}'.format(userid))
-        os.mkdir('users/{}/images'.format(userid))
-        os.mkdir('users/{}/features'.format(userid))
-        with open('users/{}/features.csv'.format(userid), 'w') as features:
-            with open('./app/static/template.csv', 'r') as f:
-                headers = f.readlines()
-                features.write(headers[0])
+        init_user(userid)
     
     dt_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     pic_id = 'id-{}_{}'.format(userid, dt_string)
@@ -54,12 +49,94 @@ def image(json, methods = ['GET', 'POST']):
     os.system('{}FaceLandmarkImg -f ./users/{}/images/{}.jpg -out_dir ./users/{}/features/{}'.format(
         PATH_TO_EXTRACTION, userid, pic_id, userid, pic_id))
     
-    with open('./users/{}/features/{}/{}.csv'.format(userid, pic_id, pic_id), 'r') as feature:
-        data = feature.readlines()
-        write_data = '{}, {}'.format(dt_string, data[1])
+    cvs_loc = './users/{}/features/{}/{}.csv'.format(userid, pic_id, pic_id)
+    if os.path.exists(cvs_loc):
+        with open(cvs_loc, 'r') as feature:
+            data = feature.readlines()
+            write_data = '{}, {}'.format(dt_string, data[1])
+            with open('./users/{}/features.csv'.format(userid), 'a') as features:
+                features.write(write_data)
+    else:
         with open('./users/{}/features.csv'.format(userid), 'a') as features:
-            features.write(write_data)
-    return Response("%s saved" % pic_id)
+            features.write(dt_string+'\n')
+
+    return 
+
+@socketio.on('start test')
+def start_test(json, methods = ['GET', 'POST']):
+    userid = DEFAULT_USER
+    if 'userid' in json:
+        userid = json['userid']
+    if not os.path.exists('./users/{}'.format(userid)):
+        init_user(userid)
+
+    with open('users/{}/test.csv'.format(userid), 'w') as test:
+        with open('./app/static/template.csv', 'r') as f:
+            headers = f.readlines()
+            test.write(headers[0])
+
+@socketio.on('send test')
+def test(json, methods = ['GET', 'POST']):
+    print('test image received from client {}'.format(request.sid))
+    i = json['image']  # get the image
+    userid = DEFAULT_USER
+    if 'userid' in json:
+        userid = json['userid']
+    if not os.path.exists('./users/{}'.format(userid)):
+        init_user(userid)
+
+    num = json['num']
+    
+    dt_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    pic_id = 'id-{}_{}'.format(userid, dt_string)
+    save_loc = './users/{}/test_images/{}.jpg'.format(userid, pic_id)
+    with Image(blob = i) as img:
+        img.save(filename = save_loc)
+    extract_loc = './users/{}/test_features/{}'.format(userid, pic_id)
+    # extract features
+    os.system('{}FaceLandmarkImg -f {} -out_dir {}'.format(
+        PATH_TO_EXTRACTION, save_loc, extract_loc))
+    
+    cvs_loc = '{}/{}.csv'.format(extract_loc, pic_id)
+    if os.path.exists(cvs_loc):
+        with open(cvs_loc, 'r') as feature:
+            data = feature.readlines()
+            write_data = '{}, {}'.format(dt_string, data[1])
+            with open('./users/{}/test.csv'.format(userid), 'a') as test:
+                test.write(write_data)
+    else:
+         with open('./users/{}/test.csv'.format(userid), 'a') as test:
+                pad = ',\\N'*711+'\n'
+                test.write(dt_string+'\n')
+
+    if num == 9:
+        print('peforming testing')
+        if not os.path.exists('./users/{}/test.csv'.format(userid)):
+            print('failed test file dne')
+            flash('Failed test!')
+            socketio.emit('failed test')
+            return
+        else:
+            test = pd.read_csv('./users/{}/test.csv'.format(userid))
+            conf = test['confidence']
+
+            if any(conf.isnull()):
+                print('failed test null value')
+                flash('Failed test!')
+                socketio.emit('failed test')
+                return
+
+            for c in conf:
+                print(c)
+                if float(c) < 0.5:
+                    print('failed test low confidence')
+                    flash('Failed test!')
+                    socketio.emit('failed test')
+                    return
+        print('passed test')
+        flash("Passed test!")
+        socketio.emit('passed test')
+        return
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -124,12 +201,21 @@ def consent():
         current_user.education = form.education.data
         current_user.robot = form.robot.data
         db.session.commit()
-        redirect(url_for("training"))
+        redirect(url_for("test"))
     if current_user.consent:
         flash("Consent completed!")
-        return redirect(url_for("training"))
+        return redirect(url_for("test"))
     else:
         return render_template("consent.html", title="Consent", form=form)
+
+@app.route("/test", methods=["GET", "POST"])
+@login_required
+def test():
+    if not current_user.consent:
+        # flash("Consent not yet completed!")
+        return redirect(url_for("consent"))
+   
+    return render_template("test.html", title="test", consent=current_user.consent, userid = current_user.id)
 
 @app.route("/training", methods=["GET", "POST"])
 @login_required
@@ -434,7 +520,8 @@ def survey(round):
     if check_previous_trials < len(RULE_PROPS[check_rule_name]['cards']):
         return redirect(url_for("consent"))
     
-    return render_template("survey.html", methods=["GET", "POST"], form=form, round=round)
+    return render_template("survey.html", methods=["GET", "POST"], form=form, round=round, consent=current_user.consent,
+                            userid = current_user.id)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -484,3 +571,4 @@ def register():
         flash("Congratulations, you are now a registered user!")
         return redirect(url_for("login"))
     return render_template("register.html", title="Register", form=form)
+

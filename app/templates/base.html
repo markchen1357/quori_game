@@ -34,6 +34,10 @@
             </ul>
         </div>
     </nav>
+
+
+    
+    
     <br> {% with messages = get_flashed_messages() %} {% if messages %} {% for message in messages %}
     <div class="alert alert-primary" role="alert">{{ message }}</div>
     {% endfor %} {% endif %} {% endwith %}
@@ -43,9 +47,12 @@
     {% if userid %}
     <meta id='userid' data = '{{ userid }}'>
     {% endif %}
-    <div class="recording" id = "recordButton">●</div>
-    <video id="myVideo" class = "center" width="320" height="180" autoplay></video>
-  
+    
+    {% block video %}
+    <!-- <div class="recording" id = "recordButton">●</div> -->
+    <video id="myVideo" class = "video" width="160" height="90" autoplay></video>
+    {% endblock %}
+
         
   
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -57,7 +64,10 @@
     <div class="container-fluid" style="padding-left: 5%; padding-right: 5%">
         {% block content %}{% endblock %}
     </div>
+
+    {% block javascript %}
     <script src="../static/webcam.js"></script>
+    {% endblock %}
 
 </body>
 

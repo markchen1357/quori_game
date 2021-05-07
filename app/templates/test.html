@@ -1,0 +1,13 @@
+{% extends "base.html" %} 
+{% block video %}
+
+<button type='button' id='startButton' class='center' disabled>Start Webcam Test</button>
+<video id='testVideo' class='center' width='640' height='360' autoplay></video>
+{% endblock %}
+</div>
+
+
+
+{% block javascript %}
+<script src="../static/test.js"></script>
+{% endblock %}

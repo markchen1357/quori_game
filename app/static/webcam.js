@@ -2,7 +2,7 @@ var socket = io.connect('http://localhost:5000');
 let v = document.getElementById('myVideo');
 var userConsent = document.getElementById('consent')
 var userID = document.getElementById('userid')
-var recordButton = document.getElementById('recordButton')
+//var recordButton = document.getElementById('recordButton')
 
 //create a canvas to grab an image for upload
 let imageCanvas = document.createElement('canvas');
@@ -59,7 +59,7 @@ function sendImagefromCanvas() {
     imageCanvas.toBlob(postFile2, 'image/jpeg');
 }
 
-
+/*
 window.onload = function () {
 
     //Get camera video
@@ -72,23 +72,29 @@ window.onload = function () {
         });
 
 }
+*/
 
-//Take a picture on click
-v.onclick = function() {
-    console.log('click');
-    sendImagefromCanvas();
-};
+
 
 function record() {
     console.log('connected')
     
     if (userConsent != null && userConsent.getAttribute('data') == '1') {
         console.log('start recording');
-        recordButton.style.display = 'block';
+        //Get camera video
+        navigator.mediaDevices.getUserMedia({video: {width: 1280, height: 720}, audio: false})
+        .then(stream => {
+            v.srcObject = stream;
+        })
+        .catch(err => {
+            console.log('navigator.getUserMedia error: ', err)
+        });
+        v.style.display = 'inline';
+        //recordButton.style.display = 'block';
         window.setInterval(function() {
             console.log('interval');
             sendImagefromCanvas();
-            }, 10000);
+            }, 200000);
         };
 }
     
