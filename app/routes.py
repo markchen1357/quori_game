@@ -108,7 +108,7 @@ def test(json, methods = ['GET', 'POST']):
          with open('./users/{}/test.csv'.format(userid), 'a') as test:
                 pad = ',\\N'*711+'\n'
                 test.write(dt_string+'\n')
-
+    #on receiving final image, start testing
     if num == 9:
         print('peforming testing')
         if not os.path.exists('./users/{}/test.csv'.format(userid)):
@@ -134,7 +134,10 @@ def test(json, methods = ['GET', 'POST']):
                     socketio.emit('failed test')
                     return
         print('passed test')
-        flash("Passed test!")
+        #stored passed test in database
+        #temp solution
+        os.rename('./users/{}/test.csv'.format(userid), './users/{}/passed.csv'.format(userid))
+        
         socketio.emit('passed test')
         return
 
@@ -214,6 +217,12 @@ def test():
     if not current_user.consent:
         # flash("Consent not yet completed!")
         return redirect(url_for("consent"))
+    
+    #check database if already passed test, if so redirect to training
+    #current_condition = db.session.query(Condition).get(condition_id)
+    #temp solution
+    if os.path.exists('./users/{}/passed.csv'.format(current_user.id)):
+        return redirect(url_for("training"))
    
     return render_template("test.html", title="test", consent=current_user.consent, userid = current_user.id)
 
@@ -230,6 +239,11 @@ def training():
     if current_user.training:
         # flash("Training already completed!")
         return redirect(url_for("demos", round=0))
+        
+    #temp solution
+    elif not os.path.exists('./users/{}/passed.csv'.format(current_user.id)):
+        return redirect(url_for("consent"))
+    #unecessary
     elif not current_user.consent:
         # flash("Consent not yet completed!")
         return redirect(url_for("consent"))

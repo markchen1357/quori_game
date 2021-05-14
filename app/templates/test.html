@@ -1,7 +1,21 @@
 {% extends "base.html" %} 
 {% block video %}
 
-<button type='button' id='startButton' class='center' disabled>Start Webcam Test</button>
+<div id='instructions'>
+<h1>Webcam Test</h1>
+<br>
+<b>Instructions:</b> Position your face so that it is centered in the webcam. When you are ready, click the start test button and wait for 10 seconds.
+Make sure you face is visible on the webcam video the entire time. If you pass the test, you will be redirected to the training page.
+Otherwise if you fail the test, you can click on the button to try again. If you keep on failing the test, there may be either a server
+error, an issue with your webcam, or an issue with the lighting and visibility of your face. In this case, you are unable to earn credit
+for the study and you may exit the page. 
+</div>
+
+<div>
+    <button type="button" id='startButton' class="btn btn-primary" disabled>Start Webcam Test</button>
+   
+</div>
+
 <video id='testVideo' class='center' width='640' height='360' autoplay></video>
 {% endblock %}
 </div>

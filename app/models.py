@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
     consent = db.Column(db.Integer)
     feedback_counts = db.Column(db.PickleType)
     training = db.Column(db.Integer)
+    #webcam = db.Column(db.Integer)
     age = db.Column(db.Integer)
     gender = db.Column(db.Integer)
     ethnicity = db.Column(db.Integer)

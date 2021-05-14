@@ -57,6 +57,7 @@ window.onload = function () {
 
 async function test() {
     startButton.setAttribute('disabled', '');
+    startButton.innerHTML = "Running test...";
     console.log('starting test');
     socket.emit('start test', {'userid': userID.getAttribute('data')});
     /*
@@ -80,6 +81,7 @@ function passed() {
 function failed() {
     console.log('failed test');
     alert('failed test')
+    startButton.innerHTML = "Try again";
     startButton.removeAttribute('disabled');
 }
 
