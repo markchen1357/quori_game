@@ -280,42 +280,39 @@ def trials(round):
     current_user.feedback_counts = new_feedback_counts
     db.session.commit()
 
-    current_nonverbal = current_condition.nonverbal[round]
-    
     #Choose correct video
+    current_nonverbal = current_condition.nonverbal[round]
     cur_names = []
     cur_counts = []
-    for vid_name in FEEDBACK[current_nonverbal]['CORRECT']:
-        cur_names.append(vid_name)
-        cur_counts.append(feedback_counts[vid_name])
+    if correct_bin == 'bin0':
+        for vid_name in FEEDBACK[current_nonverbal]['CORRECT-LEFT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
+    else:
+        for vid_name in FEEDBACK[current_nonverbal]['CORRECT-RIGHT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
     cur_counts = np.array(cur_counts)
     if np.sum(cur_counts) == 0:
-        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
-    else:
-        p= 1 - cur_counts/np.sum(cur_counts)
-    for ii in range(len(p)):
-        if p[ii] < 0.05:
-            p[ii] = 0.05
-    p = p / np.sum(p)
-    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
+        cur_counts = np.ones_like(cur_counts)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
     correct_vid_name = cur_names[vid_choice]
 
     #Choose incorrect video
     cur_names = []
     cur_counts = []
-    for vid_name in FEEDBACK[current_nonverbal]['INCORRECT']:
-        cur_names.append(vid_name)
-        cur_counts.append(feedback_counts[vid_name])
+    if correct_bin == 'bin0':
+        for vid_name in FEEDBACK[current_nonverbal]['INCORRECT-LEFT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
+    else:
+        for vid_name in FEEDBACK[current_nonverbal]['INCORRECT-RIGHT']:
+            cur_names.append(vid_name)
+            cur_counts.append(feedback_counts[vid_name])
     cur_counts = np.array(cur_counts)
     if np.sum(cur_counts) == 0:
-        p = np.ones_like(cur_counts)/np.sum(np.ones_like(cur_counts))
-    else:
-        p = 1 - cur_counts/np.sum(cur_counts)
-    for ii in range(len(p)):
-        if p[ii] < 0.05:
-            p[ii] = 0.05
-    p = p / np.sum(p)
-    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
+        cur_counts = np.ones_like(cur_counts)
+    vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
     incorrect_vid_name = cur_names[vid_choice]
 
     if answers[num_completed_trials][0]:
