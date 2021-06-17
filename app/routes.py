@@ -280,6 +280,11 @@ def trials(round):
     current_user.feedback_counts = new_feedback_counts
     db.session.commit()
 
+    if answers[num_completed_trials][0]:
+        correct_bin = 'bin0'
+    else:
+        correct_bin = 'bin1'
+
     #Choose correct video
     current_nonverbal = current_condition.nonverbal[round]
     cur_names = []
@@ -314,11 +319,6 @@ def trials(round):
         cur_counts = np.ones_like(cur_counts)
     vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p=cur_counts/np.sum(cur_counts))
     incorrect_vid_name = cur_names[vid_choice]
-
-    if answers[num_completed_trials][0]:
-        correct_bin = 'bin0'
-    else:
-        correct_bin = 'bin1'
 
     return render_template("trials.html",
         title="Trials",
