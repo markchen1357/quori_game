@@ -1,0 +1,13 @@
+flask
+flask-socketio
+email-validator
+flask-wtf
+flask-login
+flask-sqlalchemy
+flask-migrate
+numpy 
+scipy 
+matplotlib 
+pandas 
+pingouin
+wand
