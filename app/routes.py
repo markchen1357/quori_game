@@ -112,9 +112,9 @@ def demos(round):
     
     previous_cards = [[], []]
     for ii in range(num_completed_demos):
-        if demo_answers[ii][0]:
+        if demo_answers[ii] == 0:
             previous_cards[0].append(demo_cards[ii])
-        if demo_answers[ii][1]:
+        if demo_answers[ii] == 1:
             previous_cards[1].append(demo_cards[ii])
     if form.validate_on_submit():
         demo = Demo(author=current_user,
@@ -203,15 +203,15 @@ def trials(round):
     
     previous_cards = [[], []]
     for ii in range(len(demo_cards)):
-        if demo_answers[ii][0]:
+        if demo_answers[ii] == 0:
             previous_cards[0].append(demo_cards[ii])
-        if demo_answers[ii][1]:
+        if demo_answers[ii] == 1:
             previous_cards[1].append(demo_cards[ii])
 
     for ii in range(num_completed_trials):
-        if answers[ii][0]:
+        if answers[ii] == 0:
             previous_cards[0].append(cards[ii])
-        if answers[ii][1]:
+        if answers[ii] == 1:
             previous_cards[1].append(cards[ii])
 
     if form.validate_on_submit():
@@ -268,7 +268,7 @@ def trials(round):
             p[ii] = 0.05
     p = p / np.sum(p)
     vid_choice = np.random.choice(np.arange(cur_counts.shape[0]), p= p)
-    vid_name = cur_names[vid_choice]
+    neutral_vid_name = cur_names[vid_choice]
     
     new_feedback_counts = {}
     for new_vid_name in VIDEO_LIST:
@@ -280,7 +280,7 @@ def trials(round):
     current_user.feedback_counts = new_feedback_counts
     db.session.commit()
 
-    if answers[num_completed_trials][0]:
+    if answers[num_completed_trials] == 0:
         correct_bin = 'bin0'
     else:
         correct_bin = 'bin1'
@@ -330,7 +330,7 @@ def trials(round):
         num_trials=len(cards),
         previous_cards=previous_cards,
         round=round,
-        vid_name=vid_name,
+        vid_name=neutral_vid_name,
         correct_vid_name = correct_vid_name,
         incorrect_vid_name = incorrect_vid_name)
 

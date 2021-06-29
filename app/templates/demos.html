@@ -20,7 +20,7 @@
     <div class="col-3">
         <div id="bin0" class="bin col">
             <div class="left-bin col-6">
-                {% if correct_bin[0] %}
+                {% if correct_bin == 0 %}
                 <div class="card obj current-card">
                     <img class="card-img-top" src="../static/cards/{{card}}.png">
                 </div>
@@ -47,7 +47,7 @@
     <div class="col-3">
         <div id="bin1" class="bin col">
             <div class="left-bin col-6">
-                {% if correct_bin[1] %}
+                {% if correct_bin == 1 %}
                 <div class="card obj current-card">
                     <img class="card-img-top" src="../static/cards/{{card}}.png">
                 </div>
