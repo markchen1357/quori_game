@@ -17,10 +17,23 @@ var drake = dragula(dragArr, {
             return (false);
         };
     },
-}).on("drop", function(el) {
+}).on("drop", function(el, target, source) {
     var chosen_bin = document.getElementById("current-chosen-bin");
+    var cur_switches = document.getElementById("switches");
+    var new_num;
     chosen_bin.textContent = el.parentElement.id;
     console.log("Moved to " + el.parentElement.id);
+    if (target.id != source.id) {
+
+        //Update switches
+        if (cur_switches.value.length == 0) {
+            cur_switches.value = 1;
+        } else {
+            new_num = String(parseInt(cur_switches.value) + 1);
+            cur_switches.value = new_num;
+        }
+        console.log("Switches " + cur_switches.value);
+    }
     var cur_confidence;
     if (el.parentElement.id == 'staging') {
         for (var ii = 0; ii < 5; ii++) {

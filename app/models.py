@@ -64,6 +64,7 @@ class Trial(db.Model):
     rule_set = db.Column(db.PickleType)
     confidence = db.Column(db.Integer)
     feedback = db.Column(db.Integer)
+    switches = db.Column(db.Integer)
 
 
 class Demo(db.Model):

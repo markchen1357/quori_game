@@ -1,8 +1,8 @@
 """user table
 
-Revision ID: 81f382be67e9
+Revision ID: 31d85f4dc154
 Revises: 
-Create Date: 2021-04-27 13:57:14.236132
+Create Date: 2021-06-30 08:33:31.199629
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '81f382be67e9'
+revision = '31d85f4dc154'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,8 +31,8 @@ def upgrade():
     sa.Column('password_hash', sa.String(length=128), nullable=True),
     sa.Column('condition_id', sa.Integer(), nullable=True),
     sa.Column('code', sa.String(length=20), nullable=True),
-    sa.Column('feedback_counts', sa.PickleType(), nullable=True),
     sa.Column('consent', sa.Integer(), nullable=True),
+    sa.Column('feedback_counts', sa.PickleType(), nullable=True),
     sa.Column('training', sa.Integer(), nullable=True),
     sa.Column('age', sa.Integer(), nullable=True),
     sa.Column('gender', sa.Integer(), nullable=True),
@@ -81,8 +81,10 @@ def upgrade():
     sa.Column('card_num', sa.Integer(), nullable=True),
     sa.Column('correct_bin', sa.PickleType(), nullable=True),
     sa.Column('chosen_bin', sa.Integer(), nullable=True),
-    sa.Column('feedback', sa.Integer(), nullable=True),
     sa.Column('rule_set', sa.PickleType(), nullable=True),
+    sa.Column('confidence', sa.Integer(), nullable=True),
+    sa.Column('feedback', sa.Integer(), nullable=True),
+    sa.Column('switches', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

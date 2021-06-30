@@ -80,8 +80,9 @@
                 {% endfor %}
             </div>
             <span class="invisible">{{ form.submit_trial(class="btn btn-dark btn-lg w-100") }}</span>
-            <span class="invisible">{{ form.chosen_bin(cols=32, rows=4) }} </span>
-            <span class="invisible">{{ form.feedback_chosen(cols=32, rows=4) }} </span>
+            <span class="invisible">{{ form.chosen_bin(cols=32, rows=1) }} </span>
+            <span class="invisible">{{ form.feedback_chosen(cols=32, rows=1) }} </span>
+            <span class="invisible">{{ form.switches(cols=32, rows=1) }} </span>
         </form>
         <span class="invisible" id='correct_bin'>{{correct_bin}}</span>
         <span class="invisible" id='correct_vid_name'>{{correct_vid_name}}</span>

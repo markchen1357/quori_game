@@ -225,7 +225,8 @@ def trials(round):
                       chosen_bin=chosen_bin,
                       feedback=feedback_chosen,
                       rule_set=rule,
-                      confidence=int(form.confidence.data))
+                      confidence=int(form.confidence.data),
+                      switches=int(form.switches.data))
         db.session.add(trial)
 
         feedback_counts = current_user.feedback_counts
